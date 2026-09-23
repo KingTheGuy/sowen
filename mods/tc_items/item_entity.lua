@@ -126,6 +126,7 @@ item_entity.on_rightclick = function(self, clicker)
   else
     local added = stack_size - left_over:get_count()
     tc_init.pickup_indicator(clicker, itemstack:get_name(), added)
+    core.sound_play(tc_sounds.pickup().dug, { pos = clicker:get_pos()})
   end
 
 

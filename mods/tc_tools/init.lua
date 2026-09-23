@@ -3,6 +3,8 @@ local mod_path = core.get_modpath(mod_name)
 
 tc_tools = {}
 
+dofile(mod_path .. "/../tc_form/init.lua")
+
 local function create_tool(name, def)
   -- def.tiles = def.tiles or { "blank.png" }
   def.inventory_image = def.inventory_image or "blank.png"
@@ -42,7 +44,7 @@ create_tool("pickaxe_flint", {
   groups = { pickaxe = 1 },
   tool_capabilities = {
     groupcaps = {
-      pickaxe = { maxlevel = 3, uses = 20, times = { [1] = 1.60, [2] = 1.20, [3] = 0.80 } }
+      pickaxe = { maxlevel = 3, uses = 20, times = { [1] = 1.80, [2] = 1.40, [3] = 1.20 } }
     },
   },
   inventory_image = mod_name .. "_pickaxe_flint.png",
@@ -99,34 +101,17 @@ create_tool("chisel_and_hammer", {
   end,
 })
 
----FORM STUFF (should move)
-local function container(pos, size, bg_color, content)
-  return table.concat({
-    string.format("container[%s,%s]", pos[1], pos[2]),
-    string.format("box[%s,%s;%s,%s;%s]", 0, 0, size[1], size[2], bg_color),
-    table.concat(content),
-    "container_end[]",
-  })
-  -- return string.format("container[%s,%s]%scontainer_end[]", pos[1], pos[2], table.concat(content))
-end
-
-local function button(pos, size, name, label, image)
-  return table.concat({
-    string.format("tooltip[%s,%s;%s,%s;%s]", pos[1], pos[2], size[1], size[2], name),
-    string.format("image_button[%s,%s;%s,%s;%s;%s;;true;false]", pos[1], pos[2], size[1], size[2], image, label)
-  })
-end
 
 local colors = ""
 
 local padding = 0.5
-colors = colors .. button({ 0 + padding, 0 + padding }, { 1, 1 }, "wash off", "paint_color:" .. 0,
+colors = colors .. tc_form.button({ 0 + padding, 0 + padding }, { 1, 1 }, "wash off", "paint_color:" .. 0,
   "tc_tools_paint_droplet.png")
 local row = 0
 local col = 1
 for i = 1, 32, 1 do
   colors = colors ..
-      button({ col + padding, row + padding }, { 1, 1 }, "wash off", "paint_color:" .. i,
+      tc_form.button({ col + padding, row + padding }, { 1, 1 }, "wash off", "paint_color:" .. i,
         string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", i))
   col = col + 1
   if col == 9 then
@@ -137,7 +122,7 @@ end
 local paint_palette_form = table.concat({
   "formspec_version[10]",
   "size[10,8]",
-  container({ 0, 0 }, { 10, 8 }, "#453451", {
+  tc_form.container({ 0, 0 }, { 10, 8 }, "#453451", {
     colors,
   }),
 })
@@ -157,10 +142,9 @@ create_tool("paint_brush", {
 
   update_paint_brush = function(player, item, color)
     item:get_meta():set_int("_color", color)
-    item:get_meta():set_string("inventory_image",
-      mod_name ..
-      "_paint_brush.png^(" ..
-      string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)")
+    local brush_overlay =  mod_name .. "_paint_brush.png^(" .. string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)"
+    item:get_meta():set_string("inventory_image", brush_overlay)
+    item:get_meta():set_string("wield_image", brush_overlay)
     player:set_wielded_item(item, true)
   end,
 
@@ -362,6 +346,35 @@ create_tool("paint_brush", {
     --   core.set_node(pointed_thing.under,{name="tc_nodes:oak_planks_panel",param2=(11*8)+wall_dir})
     -- end
   end,
+  on_secondary_use = function(itemstack, user, pointed_thing)
+    -- core.log("pointed: " .. dump(pointed_thing))
+    if pointed_thing.type == "object" then
+      local entity = pointed_thing.ref:get_luaentity()
+      if entity._paintable == "true" then
+        local wield_meta = itemstack:get_meta()
+        local color_index = 0
+        if wield_meta:get_string("_color") ~= "" then
+          color_index = wield_meta:get_int("_color")
+        end
+        -- core.log(dump(entity._pos1))
+        -- entity._color1 = string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color_index)
+
+        if entity._t_flip == 1 then
+          entity._t_flip = 0
+          entity._color1 = color_index
+        else
+          entity._t_flip = 1
+          entity._color2 = color_index
+        end
+
+        local pos1 = vector.from_string(entity._pos1)
+        local pos2 = vector.from_string(entity._pos2)
+        rope.update_visual(entity, pos1, pos2)
+        -- string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)")
+      end
+    end
+  end,
+
 })
 
 core.register_chatcommand("pc", {

@@ -1,5 +1,7 @@
 # TODO:
 
+[ideas](~/Documents/the_core.rnote)
+
 ### rotation stuff:
 
 0 20
@@ -26,7 +28,7 @@
   - [ ] layer; for particles
   - [ ] layer; for outline
 
-- [ ] texture aligned to work maybe does not work as well as I'd like
+- [ ] (no it does work well) texture aligned to work maybe does not work as well as I'd like
 - [ ] idea: shoveling.
   - removes in 3x3-ish area
   - removes layers, gives player clump_of_dirt
@@ -46,10 +48,10 @@
 - [ ] maybe hostile mobs should become harder as the days pass?
   - or harder ones spawn in as you reach milestones.
 
-- [ ] thin logs, add a variant that fills in spacing with insulation (think log cabin)
+- [ ] thin logs; add a variant that fills in spacing with insulation (think log cabin)
   - variant node? or entity?
 
-- [ ] stairs, panels. let's have this these be created by using a tool on the main node
+- [ ] stairs, panels. let's have this these be created by using a tool on the main node (chopping block)
 
 - [ ] submerged nodes
   - to not have to deal with air gaps
@@ -67,11 +69,33 @@
 - [ ] multi offhands
   - main hotbar, each slot has a secondary slot. can pair block with torch, spear with shield, block with chisel_and_hammer.. etc.
 
+- [ ] #BUG exiting a world while in the process oh placing down a "rope" will cause the game to crash
+  - NOTE: not sure if I can fix this.
+
 # DOING:
 
-- [ ] rope
+- [ ] flag colors
+  - save the colors in data
+  - color overlay should be masked and applied to areas
+  - flip flop between coloring the main flag and second flag
+  - tools/entities file
+
+- [ ] form stuff
+  - [ ] form helpers
+  - [ ] inventory
+  - [ ] get all nodes/item in a menu
+  - [ ] crafting
+  - look at `not_in_creative_inventory`
+  - categories -> each category will have its own "workbench"
+  - in creative mode, show small menu that lets player select "workbench"
+
+- [ ] cables
   - currently just a simple visual thing
+  - [x] rope
+  - [x] thick rope
+  - [ ] chain (needs more models to account for distance)
   - [ ] end points
+  - [ ] make rope not pointable
 
 - [ ] color palettes
   - [ ] paint_brush color menu
@@ -82,10 +106,14 @@
     - [ ] ? add a popup message that says "cant use this color" and give it some of the main colors (put the main 8 colors at the front of the palette)
     - [ ] ? switch facedir to 4dir and replace node with 2 variants, one normal and one upside-down (rather not go this route)
 
+- [ ] exclude a few things from the craft menu
+  - [ ] water
+  - [ ] wall torch
 - [ ] node,stairs,step,panels **definition**
   - defining the main node also defines the variants
 
 - [ ] chisel_and_hammer, just for simple variants of node in use
+  - should maybe "replace" the node the player is holder to match the variant, this way they do not need to keep opening up the variant menu
 
 - [ ] wood_cutter/stone_cutter..etc. will provide extra nodes of which the chisel_and_hammer can then be used for the variants
 
@@ -124,7 +152,7 @@
 ## not sure:
 
 - do I want it so that animals need to be "looted"? I don't really think so as it would take away from it ever feeling cozy
-- shelter system?(pretty much force the player to build) workbenches need to be covered?
+- [ ] shelter system?(pretty much force the player to build) workbenches need to be covered?
 
 ## gameplay:
 
@@ -264,6 +292,7 @@ _natural spawn:_
 - boar (will become neutral when tamed)
 - bears
 - trolls (maybe, something huge!)
+- some type of mob that burrows underground(visually) and then jumps out and attacks (big creature? a big worm? makes the ground shake)
 
 #### neutral mobs
 

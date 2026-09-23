@@ -29,7 +29,7 @@ function tc_init.pickup_indicator(player, item_or_msg, amount)
     msg = item_or_msg
   else
     local p_inv = player:get_inventory():get_list("main")
-    local all_stack = amount
+    local all_stack = 0
     for _, stack in ipairs(p_inv) do
       if stack:get_name() == item_or_msg then
         all_stack = all_stack + stack:get_count()

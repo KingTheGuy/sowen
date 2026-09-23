@@ -9,7 +9,24 @@ core.register_alias("mapgen_dirt", "tc_nodes:dirt")
 core.register_alias("mapgen_water_source", "tc_nodes:water")
 core.register_alias("mapgen_water_flowing", "tc_nodes:water_flowing")
 
-dofile(mod_path.."/pickup_indicator.lua")
+dofile(mod_path .. "/pickup_indicator.lua")
+-- dofile(mod_path .. "/../tc_form/init.lua")
+
+core.register_on_joinplayer(function(player_ref, last_login)
+  tc_form.defualt_inv(player_ref)
+  player_ref:set_lighting({
+    shadows = { intensity = 0.33 },
+    volumetric_light = { strength = 0.45 },
+    exposure = {
+      luminance_min = -3.5,
+      luminance_max = -2.5,
+      exposure_correction = 0.35,
+      speed_dark_bright = 1500,
+      speed_bright_dark = 700,
+    },
+    -- saturation = 0.8,
+  })
+end)
 
 ------
 --- TRY TO SUCK ITEM ON FLOOR INTO PLAYER'S INV

@@ -61,18 +61,18 @@ end
 function tc_sounds.pickup()
   return {
     footstep = {
-      name = "tc_plank_footstep"
+      name = "tc_pickup"
     },
     place = {
-      name = "tc_plank_footstep"
+      name = "tc_pickup"
     },
     dig = {
-      name = "tc_plank_footstep"
+      name = "tc_pickup"
     },
     dug = {
-      name = "tc_plank_footstep",
-      pitch = 2.7,
-      gain = 2.0,
+      name = "tc_pickup",
+      pitch = 1.8,
+      gain = 1.5,
     },
   }
 end

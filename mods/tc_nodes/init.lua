@@ -546,7 +546,7 @@ local function create_log_branch(name, def)
   def.drawtype = "nodebox"
   def.selection_box = branch_box
   def.node_box = branch_box
-  def.connects_to = { "group:logs", "group:soil" }
+  def.connects_to = { "group:logs", "group:soil","group:wallmounted"}
 
   core.register_node(mod_name .. ":" .. name .. "_branch", def)
 end
@@ -625,19 +625,98 @@ create_grass_like("tall_grass", {
 --     wall_side = { -0.1, -0.5, -0.4, 0.4, 0.1, 0.1 }
 -- }
 
+local function flame_particle(position)
+  return {
+    -- vec3
+    pos = position:add(vector.new(0, 0.5, 0)),
+    -- all particles will appear at this exact position throughout the lifetime
+    -- of the particlespawner
+    amount = 1,
+
+    time = 0,
+
+    texture = {
+      name = "tc_nodes_fire_particle.png",
+      -- the texture specification string
+
+      alpha = 1.0,
+      -- controls how visible the particle is; at 1.0 the particle is fully
+      -- visible, at 0, it is completely invisible.
+
+      alpha_tween = { 1, 0 },
+      -- can be used instead of `alpha` to animate the alpha value over the
+      -- particle's lifetime. these tween tables work identically to the tween
+      -- tables used in particlespawner properties, except that time references
+      -- are understood with respect to the particle's lifetime, not the
+      -- spawner's. {1,0} fades the particle out over its lifetime.
+
+      scale = { x = 8, y = 8 },
+      -- scales the texture onscreen
+
+      -- scale_tween = {
+      --   { x = 1, y = 1 },
+      --   { x = 0, y = 1 },
+      -- },
+      -- animates the scale over the particle's lifetime. works like the
+      -- alpha_tween table, but can accept two-dimensional vectors as well as
+      -- integer values. the example value would cause the particle to shrink
+      -- in one dimension over the course of its life until it disappears
+
+      blend = "alpha",
+      -- (default) blends transparent pixels with those they are drawn atop
+      -- according to the alpha channel of the source texture. useful for
+      -- e.g. material objects like rocks, dirt, smoke, or node chunks
+      -- note: there will be rendering bugs when particles interact with
+      -- translucent nodes. particles are also not transparency-sorted
+      -- relative to each other.
+      animation = {
+        type = "vertical_frames",
+
+        aspect_w = 16,
+        -- Width of a frame in pixels
+        -- Integer in range [1, 65535]
+
+        aspect_h = 16,
+        -- Height of a frame in pixels
+        -- Integer in range [1, 65535]
+
+        length = 0.3,
+        -- Full loop length
+      },
+      -- overrides the particlespawner's global animation property for a single
+      -- specific texture
+    },
+
+  }
+end
+
 create_light_source("torch", {
   drawtype = "mesh",
   mesh = "tc_nodes_torch.glb",
   visual_scale = 10,
   wield_scale = { x = 16, y = 16, z = 16 },
   paramtype = "light",
+  light_source = 9,
   paramtype2 = "4dir",
-  -- wallmounted_rotate_vertical = true,
-  -- tiles = { mod_name .. "_torch.png", mod_name .. "_torch_wall.png" },
-  tiles = { mod_name .. "_torch_placed.png" },
+  use_texture_alpha = "blend",
+  tiles = {
+    {
+      name = "tc_nodes_torch_animated-sheet.png",
+      animation = {
+        type = "vertical_frames",
+        aspect_w = 32,
+        -- Width of a frame in pixels
+        -- Integer in range [1, 65535]
+        aspect_h = 32,
+        -- Height of a frame in pixels
+        -- Integer in range [1, 65535]
+        length = 0.6,
+        -- Full loop length
+      }
+    },
+  },
   diggable = true,
-  groups = { oddly_breakable_by_hand = 3 },
-  light_source = 8,
+  groups = { oddly_breakable_by_hand = 3, wallmounted = 1 },
   sunlight_propagates = true,
   walkable = false,
   node_box = {
@@ -660,6 +739,11 @@ create_light_source("torch", {
     else
       core.log("grounded")
     end
+    -- core.add_particlespawner(flame_particle(pos))
+  end,
+
+  on_destruct = function(pos)
+    -- core.delete_particlespawner(id)
   end,
 
 
@@ -682,13 +766,27 @@ create_light_source("torch_wall", {
   visual_scale = 10,
   wield_scale = { x = 16, y = 16, z = 16 },
   paramtype = "light",
+  light_source = 9,
   paramtype2 = "4dir",
-  -- wallmounted_rotate_vertical = true,
-  -- tiles = { mod_name .. "_torch.png", mod_name .. "_torch_wall.png" },
-  tiles = { mod_name .. "_torch_placed.png" },
+  use_texture_alpha = "blend",
+  tiles = {
+    {
+      name = "tc_nodes_torch_animated-sheet.png",
+      animation = {
+        type = "vertical_frames",
+        aspect_w = 32,
+        -- Width of a frame in pixels
+        -- Integer in range [1, 65535]
+        aspect_h = 32,
+        -- Height of a frame in pixels
+        -- Integer in range [1, 65535]
+        length = 0.6,
+        -- Full loop length
+      }
+    },
+  },
   diggable = true,
-  groups = { oddly_breakable_by_hand = 3 },
-  light_source = 8,
+  groups = { oddly_breakable_by_hand = 3, wallmounted = 1 },
   sunlight_propagates = true,
   walkable = false,
   node_box = {
