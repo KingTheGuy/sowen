@@ -109,10 +109,10 @@ colors = colors .. tc_form.button({ 0 + padding, 0 + padding }, { 1, 1 }, "wash 
   "tc_tools_paint_droplet.png")
 local row = 0
 local col = 1
-for i = 1, 32, 1 do
+for i = 1, 31, 1 do
   colors = colors ..
       tc_form.button({ col + padding, row + padding }, { 1, 1 }, "wash off", "paint_color:" .. i,
-        string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", i))
+        string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", i))
   col = col + 1
   if col == 9 then
     row = row + 1
@@ -142,7 +142,7 @@ create_tool("paint_brush", {
 
   update_paint_brush = function(player, item, color)
     item:get_meta():set_int("_color", color)
-    local brush_overlay =  mod_name .. "_paint_brush.png^(" .. string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)"
+    local brush_overlay =  mod_name .. "_paint_brush.png^(" .. string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)"
     item:get_meta():set_string("inventory_image", brush_overlay)
     item:get_meta():set_string("wield_image", brush_overlay)
     player:set_wielded_item(item, true)
@@ -169,6 +169,7 @@ create_tool("paint_brush", {
     elseif pt2 == "colorfacedir" then
       color = math.floor(node.param2 / 32)
     elseif pt2 == "color4dir" then
+      color = math.floor(node.param2 / 8)
     elseif pt2 == "colorwallmounted" then
       color = math.floor(node.param2 / 8)
     else
@@ -183,7 +184,7 @@ create_tool("paint_brush", {
     local splat_pos = pointed_thing.above:add(pointed_thing.under):divide(2)
     local vel = p_pos:subtract(splat_pos):divide(2)
 
-    local texture = string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color) ..
+    local texture = string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", color) ..
         "^[mask:tc_items_item_particle.png"
     core.add_particle({
       size = 8,
@@ -192,8 +193,8 @@ create_tool("paint_brush", {
       expirationtime = 0.25,
       glow = 0,
       -- texture = "[fill:1x1:" .. "#fff",
-      -- texture = "tc_items_item_particle.png^[colorize:"..string.format("nanner-pancakes-1x.png^[sheet:32x32:%s,0",p_index),
-      -- texture = string.format("nanner-pancakes-1x.png^[sheet:32x32:%s,0",p_index).."^[mask:tc_items_item_particle.png",
+      -- texture = "tc_items_item_particle.png^[colorize:"..string.format(tc_init.color_palette.."^[sheet:32x32:%s,0",p_index),
+      -- texture = string.format(tc_init.color_palette.."^[sheet:32x32:%s,0",p_index).."^[mask:tc_items_item_particle.png",
       texture = texture,
       -- texture = "tc_tools_paint_ani.png",
       animation = {
@@ -244,6 +245,7 @@ create_tool("paint_brush", {
     elseif pt2 == "colorfacedir" then
       color = (p_index * 32) + (node.param2 % 32)
     elseif pt2 == "color4dir" then
+      color = (p_index * 8) + (node.param2 % 8)
     elseif pt2 == "colorwallmounted" then
       local wallmounted = node.param2 % 8
       color = (p_index * 8) + wallmounted
@@ -262,7 +264,7 @@ create_tool("paint_brush", {
     local splat_pos = pointed_thing.above:add(pointed_thing.under):divide(2)
     local vel = p_pos:subtract(splat_pos):divide(2)
     -- core.log("splat pos: "..dump(splat_pos))
-    local texture = string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", p_index) ..
+    local texture = string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", p_index) ..
         "^[mask:tc_tools_paint_ani.png"
     local particle = {
       size = 8,
@@ -271,8 +273,8 @@ create_tool("paint_brush", {
       expirationtime = 0.25,
       glow = 0,
       -- texture = "[fill:1x1:" .. "#fff",
-      -- texture = "tc_items_item_particle.png^[colorize:"..string.format("nanner-pancakes-1x.png^[sheet:32x32:%s,0",p_index),
-      -- texture = string.format("nanner-pancakes-1x.png^[sheet:32x32:%s,0",p_index).."^[mask:tc_items_item_particle.png",
+      -- texture = "tc_items_item_particle.png^[colorize:"..string.format(tc_init.color_palette.."^[sheet:32x32:%s,0",p_index),
+      -- texture = string.format(tc_init.color_palette.."^[sheet:32x32:%s,0",p_index).."^[mask:tc_items_item_particle.png",
       texture = texture,
       -- texture = "tc_tools_paint_ani.png",
       animation = {
@@ -304,8 +306,8 @@ create_tool("paint_brush", {
           --   expirationtime = 0.25,
           --   glow = 0,
           --   -- texture = "[fill:1x1:" .. "#fff",
-          --   -- texture = "tc_items_item_particle.png^[colorize:"..string.format("nanner-pancakes-1x.png^[sheet:32x32:%s,0",p_index),
-          --   -- texture = string.format("nanner-pancakes-1x.png^[sheet:32x32:%s,0",p_index).."^[mask:tc_items_item_particle.png",
+          --   -- texture = "tc_items_item_particle.png^[colorize:"..string.format(tc_init.color_palette.."^[sheet:32x32:%s,0",p_index),
+          --   -- texture = string.format(tc_init.color_palette.."^[sheet:32x32:%s,0",p_index).."^[mask:tc_items_item_particle.png",
           --   texture = texture,
           --   -- texture = "tc_tools_paint_ani.png",
           --   animation = {
@@ -357,7 +359,7 @@ create_tool("paint_brush", {
           color_index = wield_meta:get_int("_color")
         end
         -- core.log(dump(entity._pos1))
-        -- entity._color1 = string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color_index)
+        -- entity._color1 = string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", color_index)
 
         if entity._t_flip == 1 then
           entity._t_flip = 0
@@ -370,7 +372,7 @@ create_tool("paint_brush", {
         local pos1 = vector.from_string(entity._pos1)
         local pos2 = vector.from_string(entity._pos2)
         rope.update_visual(entity, pos1, pos2)
-        -- string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)")
+        -- string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)")
       end
     end
   end,
@@ -394,7 +396,7 @@ core.register_chatcommand("pc", {
       wield:get_meta():set_string("inventory_image",
         mod_name ..
         "_paint_brush.png^(" ..
-        string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", param) .. "^[mask:tc_tools_paint_brush_overlay.png)")
+        string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", param) .. "^[mask:tc_tools_paint_brush_overlay.png)")
       p_ref:set_wielded_item(wield, true)
     else
       core.log("not holding paint brush")

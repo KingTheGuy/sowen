@@ -3,6 +3,8 @@ local mod_path = core.get_modpath(mod_name)
 
 tc_init = {}
 
+tc_init.color_palette = "hept32.png"
+
 core.register_alias("mapgen_singlenode", "tc_nodes:stone")
 core.register_alias("mapgen_stone", "tc_nodes:stone")
 core.register_alias("mapgen_dirt", "tc_nodes:dirt")

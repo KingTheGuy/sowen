@@ -56,7 +56,8 @@ for item, def in pairs(core.registered_items) do
   -- tc_form.button({ 0, 0 }, { 1, 1 }, "dirt", "not_dirt", "tc_nodes_dirt.png"),
   if item == "" or def.groups.not_in_creative_inventory ~= nil then
   else
-    all_nodes = all_nodes .. string.format("item_image_button[%s,%s;1,1;%s;%s;%s]", col, row, item, item .. ":give", "")
+    all_nodes = all_nodes ..
+    string.format("item_image_button[%s,%s;1,1;%s;%s;%s]", col, row, item, item .. ":give", string.split(item, ":")[2])
     col = col + 1
     if col > 5 then
       row = row + 1
@@ -76,13 +77,15 @@ local p_inv = table.concat({
       }),
     -- tc_form.container({ tc_form.hotbar_size + (i_s_s * slots_size[1]) + (tc_form.hotbar_size / 2), 0 }, { 6, 8 },
     -- "#242453", {
-    "scroll_container[15,0;6,9;yes;vertical;1;0.2]",
-    string.format("style_type[image_button;border=false;bgimg=%s;bgimg_hovered=%s]",
-      "(form_selectable.png^[multiply:#3a4a51)", "(form_selectable.png^[multiply:#9a4a51)"),
-    all_nodes,
-    "listring[]",
-    "scroll_container_end[]",
-    "scrollbar[21,0;0.5,9;vertical;yes;0]"
+    tc_form.container({ 15, 0 }, { 6, 9 }, "#658345", {
+      "scroll_container[0,0;6,9;yes;vertical;1;0.2]",
+      string.format("style_type[image_button;border=false;bgimg=%s;bgimg_hovered=%s;font_size=10]",
+        "(form_selectable.png^[multiply:#3a4a51)", "(form_selectable.png^[multiply:#9a4a51)"),
+      all_nodes,
+      "listring[]",
+      "scroll_container_end[]",
+      "scrollbar[6,0;0.5,9;vertical;yes;0]"
+    })
     -- "listring[]",
     -- tc_form.button({ 0, 0 }, { 1, 1 }, "dirt", "not_dirt", "tc_nodes_dirt.png"),
     -- tc_form.button({ 0, 1 }, { 1, 1 }, "dirt", "not_dirt", "tc_nodes_cobblestone.png"),

@@ -74,7 +74,14 @@
 
 # DOING:
 
-- [ ] flag colors
+- [x] swap colorfacedir for duplicate nodes
+  - [x] fix the def; for some reason it does not like how this is looking
+  - example: stairs -> stairs_up & stairs_down
+
+- [ ] node,stairs,step,panels **definition**
+  - defining the main node also defines the variants
+
+- [x] flag colors
   - save the colors in data
   - color overlay should be masked and applied to areas
   - flip flop between coloring the main flag and second flag
@@ -109,8 +116,6 @@
 - [ ] exclude a few things from the craft menu
   - [ ] water
   - [ ] wall torch
-- [ ] node,stairs,step,panels **definition**
-  - defining the main node also defines the variants
 
 - [ ] chisel_and_hammer, just for simple variants of node in use
   - should maybe "replace" the node the player is holder to match the variant, this way they do not need to keep opening up the variant menu

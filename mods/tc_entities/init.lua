@@ -93,7 +93,7 @@ function rope.update_visual(self, pos1, pos2)
     end
     -- local color = string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", color_index)
     local color = function(index)
-      return string.format("nanner-pancakes-1x.png^[sheet:256x1:%s,0", index)
+      return string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", index)
     end
     local texture = core.registered_entities[self.name].initial_properties.textures[1]
 
