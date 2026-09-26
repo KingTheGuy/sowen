@@ -21,6 +21,7 @@ core.override_item("", {
         uses = 0,
       },
     },
+    -- groups = {hand=1},
     damage_groups = hand_damage_groups,
   },
 })
@@ -129,6 +130,12 @@ local paint_palette_form = table.concat({
 ---END FORM STUFF---
 
 create_tool("paint_brush", {
+  description = [[
+[sneak+right_click]: open palette;
+[right_click]: paint block;
+[left_click]: sample color;
+Put in hotbar 1 to place and color blocks.
+    ]],
   range = 5,
   groups = {},
   -- tool_capabilities = {
@@ -250,7 +257,7 @@ create_tool("paint_brush", {
       local wallmounted = node.param2 % 8
       color = (p_index * 8) + wallmounted
     else
-      core.log("this can't be colored")
+      -- core.log("this can't be colored")
       return
     end
     node.param2 = color
@@ -349,6 +356,12 @@ create_tool("paint_brush", {
     -- end
   end,
   on_secondary_use = function(itemstack, user, pointed_thing)
+    local p_name = user:get_player_name()
+    if user:get_player_control().sneak == true then
+      -- core.log("ok lets open the palette")
+      core.show_formspec(p_name, "paint_palette_form", paint_palette_form)
+      return
+    end
     -- core.log("pointed: " .. dump(pointed_thing))
     if pointed_thing.type == "object" then
       local entity = pointed_thing.ref:get_luaentity()

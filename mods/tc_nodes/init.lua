@@ -1,10 +1,38 @@
 local mod_name = core.get_current_modname()
 local mod_path = core.get_modpath(mod_name)
 
+tc_nodes = {}
+
 local defualt_node_groups = { oddly_breakable_by_hand = 3, choppy = 2, crumbly = 3, nodes = 1 }
 local group_log = { oddly_breakable_by_hand = 3, logs = 1 }
 local group_plank = { oddly_breakable_by_hand = 3, planks = 1 }
 -- defualt_node_groups["dig_immediate"] = 3
+
+--- SHAPES --- not sure if this will be used just yet
+-- lcoal shapes = {
+--   thin_log = {} -- thin logs also has connected stuff
+-- }
+-- tc_nodes.shapes = shapes
+
+---FIXME: would be better to paint the node before placing (using param2 on placement)
+---FIXME: if in 1st slot inv slot, sneaking and placing node will open the palette menu
+---tries to paint node if paint_brush is in first inventory slot
+---@param itemstack any
+---@param placer any
+---@param pointed_thing any
+---@return any
+local function paint_on_place(itemstack, placer, pointed_thing)
+    -- core.item_place_node(itemstack, placer, pointed_thing)
+    local item_first_slot = placer:get_inventory():get_stack("main", 1)
+    if item_first_slot:get_name() == "tc_tools:paint_brush" then
+      local brush_def = core.registered_items[item_first_slot:get_name()]
+      local pointed = {above=pointed_thing.above,under=pointed_thing.above}
+      brush_def.on_place(item_first_slot,placer,pointed)
+    end
+    -- local count = itemstack:get_count()
+    -- itemstack:set_count(count - 1)
+    -- return itemstack
+end
 
 --- drop item from node, will go direclty into player_inv player is close enough and there is space
 ---@param pos any
@@ -70,6 +98,11 @@ local function onDig(pos, node, digger, drops)
   -- core.log("item: " .. dump(item))
   if core.registered_tools[item_name] and core.registered_tools[item_name].groups then
     local item_groups = core.registered_tools[item_name].groups
+    if drops == nil then
+      core.add_item(pos, node)
+      core.log("no drops defined")
+      return
+    end
     for _, drop in ipairs(drops) do
       local all_groups = true
       --- check that tool has all the groups that the drop requires
@@ -99,26 +132,205 @@ local function onDig(pos, node, digger, drops)
   return true
 end
 
----comment
----@param name string
----@param def table
-local function create_node(name, def)
-  def.drops = def.drops or {}
+local function swap_varient(placer, pointed_thing)
+  local p_dir = placer:get_look_dir():add(vector.new(0, 0, 0))
+  local eye = placer:get_properties().eye_height
+  local p_pos = placer:get_pos()
+  p_pos.y = p_pos.y + eye -- take eye_height into account
+  local new_pos = p_dir:multiply(4):add(p_pos)
+
+  local ray = core.raycast(p_pos, new_pos, false, false):next()
+  local dir = core.dir_to_facedir(p_dir)
+  if ray then
+    local point = ray.intersection_point
+    if vector.new(pointed_thing.above.x, 0, pointed_thing.above.z) ~= vector.new(ray.under.x, 0, ray.under.z) then
+      -- core.log("ray: "..dump(ray:next()))
+      -- core.add_particle({
+      --   size = 2,
+      --   pos = point,
+      --   texture = "[fill:1x1:" .. "#fff",
+      --   velocity = vector.new(0, 0.8, 0),
+      --   expirationtime = 1,
+      --   glow = 14,
+      -- })
+      -- core.log("point: " .. dump(point))
+      if point.y < pointed_thing.under.y then
+        -- core.log("up")
+        return false, dir
+        -- if dir == 0 then
+        --   dir = 8
+        -- elseif dir == 1 then
+        --   dir = 17
+        -- elseif dir == 2 then
+        --   dir = 6
+        -- elseif dir == 3 then
+        --   dir = 15
+        -- end
+        -- face = 22
+      else
+        -- core.log("down")
+      end
+      return true, dir
+    elseif point.y < pointed_thing.under.y then
+      return true, dir
+    end
+  end
+  return false, dir
+end
+
+function tc_nodes.register_stairs(name, def)
+  name = name .. "_stairs"
+  for _, value in ipairs({ "_up", "_down" }) do
+    local node_def = {}
+    for key, kv in pairs(def) do
+      if node_def[key] == "groups" then
+      else
+        node_def[key] = kv
+      end
+    end
+
+    local groups = {}
+    for g, gv in pairs(def.groups) do
+      groups[g] = gv
+    end
+    node_def.groups = groups
+
+    -- node_def.on_dig = nil
+    node_def.drop = name .. "_up"
+    node_def.drawtype = "nodebox"
+    node_def.sunlight_propagates = true
+    node_def.paramtype = "light"
+    node_def.paramtype2 = "color4dir"
+    node_def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
+
+    node_def.on_place = function(itemstack, placer, pointed_thing)
+      local node = core.get_node(pointed_thing.above)
+      local node_registered = core.registered_nodes[node.name]
+      if not node_registered.buildable_to then
+        return
+      end
+      -- core.log("drop? " .. dump(core.registered_nodes[itemstack:get_name()]))
+      local swap, dir = swap_varient(placer, pointed_thing)
+      if swap then
+        core.set_node(pointed_thing.above, { name = name .. "_down", param2 = dir })
+      else
+        core.set_node(pointed_thing.above, { name = itemstack:get_name(), param2 = dir })
+      end
+      paint_on_place(itemstack, placer, pointed_thing)
+      local count = itemstack:get_count()
+      itemstack:set_count(count - 1)
+      return itemstack
+    end
+
+    local shape = {
+      { 0.5,  0.0,  0.5,  -0.5, 0.5, 0.0 },
+      { -0.5, -0.5, -0.5, 0.5,  0.0, 0.5 },
+    }
+    if value == "_down" then
+      node_def.groups["not_in_creative_inventory"] = 1
+      shape = {
+        { 0.5,  -0.5, 0.5,  -0.5, 0.0, 0.0 },
+        { -0.5, 0.0,  -0.5, 0.5,  0.5, 0.5 },
+      }
+    end
+    node_def.node_box = {
+      type = "fixed",
+      fixed = shape
+    }
+    node_def.selection_box = {
+      type = "fixed",
+      fixed = shape
+    }
+    core.register_node(name .. value, node_def)
+  end
+end
+
+function tc_nodes.register_step(name, def)
+  name = name .. "_step"
+  for _, value in ipairs({ "_up", "_down" }) do
+    local node_def = {}
+    for key, kv in pairs(def) do
+      if node_def[key] == "groups" then
+      else
+        node_def[key] = kv
+      end
+    end
+
+    local groups = {}
+    for g, gv in pairs(def.groups) do
+      groups[g] = gv
+    end
+    node_def.groups = groups
+
+    -- node_def.on_dig = nil
+    node_def.drop = name .. "_up"
+    node_def.drawtype = "nodebox"
+    node_def.sunlight_propagates = true
+    node_def.paramtype = "light"
+    node_def.paramtype2 = "color4dir"
+    node_def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
+
+    node_def.on_place = function(itemstack, placer, pointed_thing)
+      local node = core.get_node(pointed_thing.above)
+      local node_registered = core.registered_nodes[node.name]
+      if not node_registered.buildable_to then
+        return
+      end
+      -- core.log("drop? " .. dump(core.registered_nodes[itemstack:get_name()]))
+      local swap, dir = swap_varient(placer, pointed_thing)
+      if swap then
+        core.set_node(pointed_thing.above, { name = name .. "_down", param2 = dir })
+      else
+        core.set_node(pointed_thing.above, { name = itemstack:get_name(), param2 = dir })
+      end
+      paint_on_place(itemstack, placer, pointed_thing)
+      local count = itemstack:get_count()
+      itemstack:set_count(count - 1)
+      return itemstack
+    end
+
+    local shape = {
+      { 0.5, -0.5, 0.5, -0.5, 0.0, 0.0 }
+    }
+    if value == "_down" then
+      node_def.groups["not_in_creative_inventory"] = 1
+      shape = {
+        { 0.5, 0.0, 0.5, -0.5, 0.5, 0.0 }
+      }
+    end
+    node_def.node_box = {
+      type = "fixed",
+      fixed = shape
+    }
+    node_def.selection_box = {
+      type = "fixed",
+      fixed = shape
+    }
+    core.register_node(name .. value, node_def)
+  end
+end
+
+---registers base node, stairs, panel, steps
+function tc_nodes.register_node_plus(name, def)
+  -- base node
+  -- stairs up/down
+  -- panel
+  -- steps up/down
+  def.sounds = def.sounds or tc_sounds.plank()
+
+  def.drop = mod_name .. ":" .. name
+  def.drops = def.drops or nil
   def.on_dig = function(pos, node, digger)
     onDig(pos, node, digger, def.drops)
   end
-
-  -- def.after_dig_node = function(pos, oldnode, oldmetadata, digger)
-  --   return nil
-  -- end
-
-  -- def.after_destruct = function(pos, oldnode)
-  --   drop_item(pos,oldnode)
-  -- end
-  -- def.drop = ""
+  -- def.on_place = function(itemstack, placer, pointed_thing)
+  def.after_place_node = function(pos, placer, itemstack, pointed_thing)
+    --- NOTE: does not seem to like when previous node is buildable_to
+    paint_on_place(itemstack, placer, pointed_thing)
+  end
 
   def.paramtype2 = "color"
-  def.palette = tc_init.color_palette..""
+  def.palette = tc_init.color_palette .. ""
   def.sounds = def.sounds or tc_sounds.stone()
   def.drawtype = def.drawtype or "normal" -- See "Node drawtypes"
   def.groups = def.groups or defualt_node_groups
@@ -128,6 +340,38 @@ local function create_node(name, def)
   def.diggable = def.diggable or true                 -- If false, can never be dug
   def.buildable_to = def.buildable_to or false        -- If true, placed nodes can replace this node
   def.node_box = def.node_box or { type = "regular" } -- See "Node boxes"
+
+  core.register_node(mod_name .. ":" .. name, def)
+  tc_nodes.register_stairs(mod_name .. ":" .. name, def)
+  tc_nodes.register_step(mod_name .. ":" .. name, def)
+  tc_nodes.register_panel(mod_name .. ":" .. name, def)
+  -- core.register_node(mod_name..":"..name.."_panel",def)
+end
+
+---comment
+---@param name string
+---@param def table
+local function create_node(name, def)
+  def.drops = def.drops or {}
+  def.on_dig = function(pos, node, digger)
+    onDig(pos, node, digger, def.drops)
+  end
+  def.after_place_node = function(pos, placer, itemstack, pointed_thing)
+    --- NOTE: does not seem to like when previous node is buildable_to
+    paint_on_place(itemstack, placer, pointed_thing)
+  end
+
+  -- def.drawtype = def.drawtype or "normal" -- See "Node drawtypes"
+  def.paramtype2 = def.paramtype2 or "color"
+  def.palette = def.palette or tc_init.color_palette
+  -- def.sounds = def.sounds or tc_sounds.stone()
+  def.groups = def.groups or defualt_node_groups
+  def.is_ground_content = def.is_ground_content or true
+  def.diggable = def.diggable or true
+  def.buildable_to = def.buildable_to or false
+  -- def.node_box = def.node_box or { type = "regular" }
+  -- def.collision_box = def.node_box or { type = "regular" }
+  def.tiles = def.tiles or { mod_name .. "_stone.png" }
 
   core.register_node(mod_name .. ":" .. name, def)
 end
@@ -222,7 +466,7 @@ end
 local function create_planks(name, def)
   def.sounds = tc_sounds.plank()
   def.paramtype2 = "color"
-  def.palette = tc_init.color_palette..""
+  def.palette = tc_init.color_palette .. ""
   local log_size = { -0.5, -0.5, -0.5, 0.5, 0.5, 0.5 }
   def.drawtype = "node"
   def.node_box = {
@@ -252,6 +496,7 @@ local function create_planks(name, def)
 
   --- THE LOG
   core.register_node(mod_name .. ":" .. name, def)
+  return def
 end
 
 local function rot_placer(placer, pointed_thing)
@@ -297,50 +542,6 @@ local function rot_placer(placer, pointed_thing)
 end
 
 
-local function swap_varient(placer, pointed_thing)
-  local p_dir = placer:get_look_dir():add(vector.new(0, 0, 0))
-  local eye = placer:get_properties().eye_height
-  local p_pos = placer:get_pos()
-  p_pos.y = p_pos.y + eye -- take eye_height into account
-  local new_pos = p_dir:multiply(4):add(p_pos)
-
-  local ray = core.raycast(p_pos, new_pos, false, false):next()
-  local dir = core.dir_to_facedir(p_dir)
-  if ray then
-    if vector.new(pointed_thing.above.x, 0, pointed_thing.above.z) ~= vector.new(ray.under.x, 0, ray.under.z) then
-      -- core.log("ray: "..dump(ray:next()))
-      local point = ray.intersection_point
-      -- core.add_particle({
-      --   size = 2,
-      --   pos = point,
-      --   texture = "[fill:1x1:" .. "#fff",
-      --   velocity = vector.new(0, 0.8, 0),
-      --   expirationtime = 1,
-      --   glow = 14,
-      -- })
-      -- core.log("point: " .. dump(point))
-      if point.y < pointed_thing.under.y then
-        core.log("up")
-        return false,dir
-        -- if dir == 0 then
-        --   dir = 8
-        -- elseif dir == 1 then
-        --   dir = 17
-        -- elseif dir == 2 then
-        --   dir = 6
-        -- elseif dir == 3 then
-        --   dir = 15
-        -- end
-        -- face = 22
-      else
-        core.log("down")
-      end
-      return true,dir
-    end
-  end
-  return false,dir
-end
-
 local function create_planks_step_up(name, def)
   def.sounds = tc_sounds.plank()
   local log_size = { 0.5, -0.5, 0.5, -0.5, 0.0, 0.0 }
@@ -350,7 +551,7 @@ local function create_planks_step_up(name, def)
   -- def.paramtype2 = "colorfacedir"
   -- def.palette = tc_init.color_palette.."^[sheet:32x1:0,0"
   def.paramtype2 = "color4dir"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.node_box = {
     type = "fixed",
     fixed = log_size
@@ -380,11 +581,11 @@ local function create_planks_step_up(name, def)
     if not node_def.buildable_to then
       return
     end
-    local swap,dir = swap_varient(placer, pointed_thing)
+    local swap, dir = swap_varient(placer, pointed_thing)
     if swap then
-      core.set_node(pointed_thing.above, { name = mod_name..":"..name.."_down", param2 = dir})
+      core.set_node(pointed_thing.above, { name = mod_name .. ":" .. name .. "_down", param2 = dir })
     else
-      core.set_node(pointed_thing.above, { name = itemstack:get_name(), param2 = dir})
+      core.set_node(pointed_thing.above, { name = itemstack:get_name(), param2 = dir })
     end
     -- core.log("dir: "..dump(p_dir))
     -- core.log("yup")
@@ -394,21 +595,21 @@ local function create_planks_step_up(name, def)
   end
 
   --- THE LOG
-  core.register_node(mod_name .. ":" .. name.."_up", def)
+  core.register_node(mod_name .. ":" .. name .. "_up", def)
 end
 
 
 local function create_planks_step_down(name, def)
   def.sounds = tc_sounds.plank()
   local log_size = { 0.5, 0.0, 0.5, -0.5, 0.5, 0.0 }
-  def.drop = mod_name..":"..name.."_up"
+  def.drop = mod_name .. ":" .. name .. "_up"
   def.drawtype = "nodebox"
   def.sunlight_propagates = true
   def.paramtype = "light"
   -- def.paramtype2 = "colorfacedir"
   -- def.palette = tc_init.color_palette.."^[sheet:32x1:0,0"
   def.paramtype2 = "color4dir"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.node_box = {
     type = "fixed",
     fixed = log_size
@@ -448,7 +649,7 @@ local function create_planks_step_down(name, def)
   -- end
 
   --- THE LOG
-  core.register_node(mod_name .. ":" .. name.."_down", def)
+  core.register_node(mod_name .. ":" .. name .. "_down", def)
 end
 
 
@@ -462,7 +663,7 @@ local function create_planks_stairs_up(name, def)
   def.sunlight_propagates = true
   def.paramtype = "light"
   def.paramtype2 = "color4dir"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.node_box = {
     type = "fixed",
     fixed = log_size
@@ -492,34 +693,34 @@ local function create_planks_stairs_up(name, def)
     -- -- core.log("dir: "..dump(p_dir))
     -- -- core.log("yup")
     -- core.set_node(pointed_thing.above, { name = itemstack:get_name(), param2 = dir })
-    local swap,dir = swap_varient(placer, pointed_thing)
+    local swap, dir = swap_varient(placer, pointed_thing)
     if swap then
-      core.set_node(pointed_thing.above, { name = mod_name..":"..name.."_down", param2 = dir})
+      core.set_node(pointed_thing.above, { name = mod_name .. ":" .. name .. "_down", param2 = dir })
     else
-      core.set_node(pointed_thing.above, { name = itemstack:get_name(), param2 = dir})
+      core.set_node(pointed_thing.above, { name = itemstack:get_name(), param2 = dir })
     end
     local count = itemstack:get_count()
     itemstack:set_count(count - 1)
     return itemstack
   end
 
-  core.register_node(mod_name .. ":" .. name.."_up", def)
+  core.register_node(mod_name .. ":" .. name .. "_up", def)
 end
 
 
 local function create_planks_stairs_down(name, def)
   def.sounds = tc_sounds.plank()
   local log_size = {
-    { 0.5,  -0.5,  0.5,  -0.5, 0.0, 0.0 },
-    { -0.5, 0.0, -0.5, 0.5,  0.5, 0.5 },
+    { 0.5,  -0.5, 0.5,  -0.5, 0.0, 0.0 },
+    { -0.5, 0.0,  -0.5, 0.5,  0.5, 0.5 },
   }
 
-  def.drop = mod_name..":"..name.."_up"
+  def.drop = mod_name .. ":" .. name .. "_up"
   def.drawtype = "nodebox"
   def.sunlight_propagates = true
   def.paramtype = "light"
   def.paramtype2 = "color4dir"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.node_box = {
     type = "fixed",
     fixed = log_size
@@ -548,44 +749,38 @@ local function create_planks_stairs_down(name, def)
     type = "fixed",
     fixed = log_size
   }
-  core.register_node(mod_name .. ":" .. name.."_down", def)
+  core.register_node(mod_name .. ":" .. name .. "_down", def)
 end
 
-local function create_planks_panel(name, def)
-  def.sounds = tc_sounds.plank()
-  local log_size = { -0.5, -0.5, -0.5, 0.5, 0.0, 0.5 }
-  -- def.paramtype2 = "4dir"
-  def.sunlight_propagates = true
-  def.paramtype = "light"
-  -- def.place_param2 = "8"
-  def.paramtype2 = "colorwallmounted"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
-  def.drawtype = "nodebox"
-  def.node_box = {
+function tc_nodes.register_panel(name, def)
+  name = name .. "_panel"
+  local node_def = {}
+  for key, kv in pairs(def) do
+    node_def[key] = kv
+  end
+  node_def.sounds = tc_sounds.plank()
+  local shape = { -0.5, -0.5, -0.5, 0.5, 0.0, 0.5 }
+  -- node_def.paramtype2 = "4dir"
+  node_def.sunlight_propagates = true
+  node_def.paramtype = "light"
+  -- node_def.place_param2 = "8"
+  node_def.paramtype2 = "colorwallmounted"
+  node_def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
+  node_def.drawtype = "nodebox"
+  node_def.node_box = {
     type = "fixed",
-    fixed = log_size
+    fixed = shape
   }
-  def.selection_box = {
+  node_def.selection_box = {
     type = "fixed",
-    fixed = log_size
+    fixed = shape
   }
-  def.groups = group_plank
-  -- def.node_box = {
+  -- node_def.node_box = {
   --   type="fixed",
   --   fixed = { -0.3, -0.5, -0.3, 0.3, -0.4, 0.3 }
   -- }
-  def.tiles = def.tiles or {
-    -- mod_name .. "_oak_planks.png",
-    { name = mod_name .. "_oak_planks.png", align_style = "world", scale = 3 },
-    -- mod_name .. "_oak_log_top.png",
-    -- mod_name .. "_oak_log_sides.png",
-    -- mod_name .. "_oak_log_sides.png",
-    -- mod_name .. "_oak_log_sides.png",
-    -- mod_name .. "_oak_log_sides.png",
-  }
-
   --- THE LOG
-  core.register_node(mod_name .. ":" .. name, def)
+  core.register_node(name, node_def)
 end
 
 local function create_log(name, def)
@@ -602,7 +797,7 @@ local function create_log(name, def)
   }
   -- def.paramtype2 = "wallmounted"
   def.paramtype2 = "colorwallmounted"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.groups = group_log
   -- def.node_box = {
   --   type="fixed",
@@ -623,11 +818,11 @@ end
 
 local function create_log_thin(name, def)
   def.sounds = tc_sounds.plank()
-  def.sunlight_propagates = true
-  def.paramtype = "light"
+  -- def.sunlight_propagates = false
+  -- def.paramtype = "light"
   -- def.paramtype2 = "wallmounted"
   def.paramtype2 = "colorwallmounted"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.groups = group_log
   -- def.node_box = {
   --   type="fixed",
@@ -667,7 +862,7 @@ local function create_log_branch(name, def)
   def.paramtype = "light"
   -- def.paramtype2 = "wallmounted"
   def.paramtype2 = "colorwallmounted"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.groups = group_log
   -- def.node_box = {
   --   type="fixed",
@@ -696,7 +891,7 @@ local function create_log_branch(name, def)
   def.drawtype = "nodebox"
   def.selection_box = branch_box
   def.node_box = branch_box
-  def.connects_to = { "group:logs", "group:soil","group:wallmounted"}
+  def.connects_to = { "group:logs", "group:soil", "group:wallmounted" }
 
   core.register_node(mod_name .. ":" .. name .. "_branch", def)
 end
@@ -709,7 +904,7 @@ local function create_chopping_log(name, def)
   def.drawtype = "nodebox"
   -- def.paramtype2 = "wallmounted"
   def.paramtype2 = "colorwallmounted"
-  def.palette = tc_init.color_palette.."^[sheet:8x1:0,0"
+  def.palette = tc_init.color_palette .. "^[sheet:8x1:0,0"
   def.node_box = {
     type = "fixed",
     fixed = { -0.4, -0.5, -0.4, 0.4, 0.1, 0.4 }
@@ -723,49 +918,45 @@ local function create_chopping_log(name, def)
   core.register_node(mod_name .. ":" .. name, def)
 end
 
-create_node("stone", {
-  -- tiles = { { name = mod_name .. "_stone.png", align_style = "world", scale = 3 } },
-  tiles = { mod_name .. "_stone.png" },
-  groups = { pickaxe = 1, nodes = 1 },
-  drops = {
-    { groups = { pickaxe = 1, rose = 1 }, item = "tc_nodes:stone" },
-    { groups = { pickaxe = 1 },           item = "tc_nodes:cobblestone" },
-  }
-})
-
-create_node("cobblestone", {
-  tiles = { { name = mod_name .. "_cobblestone.png", align_style = "world", scale = 3 } },
-  -- groups = { pickaxe = 1 },
-  groups = { pickaxe = 1, nodes = 1 },
-  drops = {
-    { groups = { pickaxe = 1 }, item = "tc_nodes:cobblestone" },
-  }
-})
-
-create_node("dirt", {
-  tiles = { mod_name .. "_dirt.png" },
-  sounds = tc_sounds.dirt(),
-  groups = { pickaxe = 3, soil = 3, nodes = 1 },
-  drops = {
-    { groups = { pickaxe = 1 }, item = "tc_nodes:dirt" },
-  }
-})
-
-create_node("stone_bricks", {
-  tiles = { { name = mod_name .. "_stone_bricks.png", align_style = "world", scale = 3 } },
-  groups = { pickaxe = 1, nodes = 1 },
-  drops = {
-    { groups = { pickaxe = 1 }, item = "tc_nodes:stone_bricks" },
-  }
-})
-
 create_grass_like("tall_grass", {
   tiles = { mod_name .. "_tall_grass.png" },
   groups = { oddly_breakable_by_hand = 1, nodes = 1 },
   drops = {
     -- {groups = {rose=1},item = "tc_nodes:dirt"},
     { groups = { knife = 1 }, item = "tc_items:plant_fiber" },
-  }
+  },
+  buildable_to = true,
+})
+
+create_grass_like("oak_sapling", {
+  tiles = { mod_name .. "_oak_sapling.png" },
+  groups = { oddly_breakable_by_hand = 1, nodes = 1 },
+  drops = {
+    -- {groups = {rose=1},item = "tc_nodes:dirt"},
+    -- { groups = { knife = 1 }, item = "tc_items:plant_fiber" },
+    { groups = { knife = 1 }, item = "tc_items:plant_fiber" },
+  },
+  on_place = function(itemstack, placer, pointed_thing)
+    local node_under = core.get_node(pointed_thing.under)
+    local node_under_def = core.registered_nodes[node_under.name]
+    local pos = pointed_thing.above
+    if node_under_def.buildable_to then
+      pos = pointed_thing.under
+    end
+    -- core.set_node(pos, { name = itemstack:get_name()})
+    core.remove_node(pos)
+    core.place_schematic(
+      pos,
+      mod_path.."/../tc_mapgen/schematics/tree"..math.random(1,3)..".mts",
+      math.random(0,3)*90,
+      {},
+      false,
+      "place_center_x, place_center_z"
+    )
+    local count = itemstack:get_count()
+    itemstack:set_count(count - 1)
+    return itemstack
+  end,
 })
 
 -- local torch_nodebox = {
@@ -1007,12 +1198,116 @@ create_chopping_log("oak_chopping_log", {})
 create_log("oak_log", {})
 create_log_thin("oak_log", {})
 create_log_branch("oak_log", {})
-create_planks("oak_planks", {})
-create_planks_step_up("oak_planks_step", {})
-create_planks_step_down("oak_planks_step", {})
-create_planks_stairs_up("oak_planks_stairs", {})
-create_planks_stairs_down("oak_planks_stairs", {})
-create_planks_panel("oak_planks_panel", {})
+-- local plank_def = create_planks("oak_planks", {})
+-- create_planks_step_up("oak_planks_step", {})
+-- create_planks_step_down("oak_planks_step", {})
+-- create_planks_stairs_up("oak_planks_stairs", {})
+-- create_planks_stairs_down("oak_planks_stairs", {})
+-- tc_nodes.register_panel(mod_name..":".."oak_planks", plank_def)
+
+tc_nodes.register_node_plus("oak_planks", {
+  tiles = { { name = mod_name .. "_oak_planks.png", align_style = "world", scale = 3 } },
+  drops = {
+    { groups = { pickaxe = 1 }, item = "tc_nodes:oak_planks" },
+  },
+  groups = { pickaxe = 2 }
+})
+
+create_node("grass_mesh", {
+  drawtype = "mesh",
+  mesh = "tc_nodes_grass.glb",
+  visual_scale = 10,
+  -- visual_scale = {x=10,y=10,z=10},
+  tiles = { mod_name .. "_grass.png" },
+  use_texture_alpha = "blend",
+})
+
+create_node("oak_leaves", {
+  drawtype = "mesh",
+  mesh = "tc_nodes_oak_leaves_mesh.glb",
+  visual_scale = 14,
+  tiles = { mod_name .. "_oak_leaves_mesh.png" },
+  use_texture_alpha = "blend",
+  palette = tc_init.color_palette .. "^[sheet:8x1:0,0",
+  -- palette = "apollo-1x.png" .. "^[sheet:8x1:0,0",
+  sunlight_propagates = true,
+  paramtype = "light",
+  paramtype2 = "color4dir",
+  waving = 2,
+  climbable = true,
+  walkable = false,
+  move_resistance = 1,
+  selection_box = {
+    type = "fixed",
+    fixed = { -0.4, -0.4, -0.4, 0.4, 0.4, 0.4 }
+  },
+  sounds = tc_sounds.plant(),
+  drops = {
+    { groups = { oddly_breakable_by_hand = 1 }, item = "tc_nodes:oak_sapling" },
+    { groups = { rose = 1 }, item = "tc_nodes:oak_leaves" },
+    { groups = { knife = 1 }, item = "tc_nodes:oak_sapling" },
+  },
+
+})
+
+tc_nodes.register_node_plus("concrete", {
+  tiles = { mod_name .. "_concrete.png" },
+  drops = {
+    { groups = { pickaxe = 1 }, item = "tc_nodes:concrete" },
+  },
+  groups = { pickaxe = 1 }
+})
+
+tc_nodes.register_node_plus("cave_ground", {
+  tiles = { mod_name .. "_cave_ground_2.png" },
+  drops = {
+    { groups = { pickaxe = 1 }, item = "tc_nodes:cave_ground" },
+  },
+  groups = { pickaxe = 2 }
+})
+
+tc_nodes.register_node_plus("grass", {
+  -- tiles = { mod_name.."_grass_top.png" },
+  tiles = { { name = mod_name .. "_grass_top.png", align_style = "world", scale = 3 } },
+  drops = {
+    { groups = { pickaxe = 1 }, item = "tc_nodes:dirt" },
+  },
+  groups = { pickaxe = 3, soil = 1 },
+  sounds = tc_sounds.dirt()
+})
+
+tc_nodes.register_node_plus("dirt", {
+  tiles = { mod_name .. "_dirt.png" },
+  drops = {
+    { groups = { pickaxe = 1 }, item = "tc_nodes:dirt" },
+  },
+  groups = { pickaxe = 3, soil = 1 }
+})
+
+tc_nodes.register_node_plus("cobblestone", {
+  tiles = { { name = mod_name .. "_cobblestone.png", align_style = "world", scale = 3 } },
+  drops = {
+    { groups = { pickaxe = 1 }, item = "tc_nodes:cobblestone" },
+  },
+  groups = { pickaxe = 2, nodes = 1 },
+})
+
+tc_nodes.register_node_plus("stone", {
+  tiles = { mod_name .. "_stone.png" },
+  drops = {
+    { groups = { pickaxe = 1, rose = 1 }, item = "tc_nodes:stone" },
+    { groups = { pickaxe = 1 },           item = "tc_nodes:cobblestone" },
+  },
+  groups = { pickaxe = 1, nodes = 1 },
+})
+
+tc_nodes.register_node_plus("stone_bricks", {
+  tiles = { { name = mod_name .. "_stone_bricks.png", align_style = "world", scale = 3 } },
+  drops = {
+    { groups = { pickaxe = 1 }, item = "tc_nodes:stone_bricks" },
+  },
+  groups = { pickaxe = 1, nodes = 1 },
+})
 ---TODO:
 -- log,log_thin -> stripped, stairs, step, fence
 -- planks -> stairs, step, fence

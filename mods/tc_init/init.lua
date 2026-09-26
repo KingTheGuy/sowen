@@ -3,17 +3,21 @@ local mod_path = core.get_modpath(mod_name)
 
 tc_init = {}
 
-tc_init.color_palette = "hept32.png"
+-- tc_init.color_palette = "hept32.png"
+-- tc_init.color_palette = "nanner-pancakes-1x.png"
+tc_init.color_palette = "apollo-1x.png"
 
 core.register_alias("mapgen_singlenode", "tc_nodes:stone")
 core.register_alias("mapgen_stone", "tc_nodes:stone")
 core.register_alias("mapgen_dirt", "tc_nodes:dirt")
+core.register_alias("mapgen_dirt_with_grass", "tc_nodes:grass")
 core.register_alias("mapgen_water_source", "tc_nodes:water")
 core.register_alias("mapgen_water_flowing", "tc_nodes:water_flowing")
 
 dofile(mod_path .. "/pickup_indicator.lua")
--- dofile(mod_path .. "/../tc_form/init.lua")
+dofile(mod_path .. "/../tc_form/init.lua")
 
+tc_form.register_listener()
 core.register_on_joinplayer(function(player_ref, last_login)
   tc_form.defualt_inv(player_ref)
   player_ref:set_lighting({
@@ -25,6 +29,11 @@ core.register_on_joinplayer(function(player_ref, last_login)
       exposure_correction = 0.35,
       speed_dark_bright = 1500,
       speed_bright_dark = 700,
+    },
+    bloom = {
+      intensity = 0.02, -- 0.0 - 1.0
+      strength_factor = 0.5, -- 0.1 - 10.0
+      radius = 0.5,  -- 0.1 - 8.0
     },
     -- saturation = 0.8,
   })

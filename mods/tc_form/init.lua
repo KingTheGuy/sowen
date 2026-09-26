@@ -97,7 +97,9 @@ function tc_form.defualt_inv(p_ref)
   p_ref:get_inventory():set_size("main", tc_form.hotbar_size * tc_form.player_inv_col)
   p_ref:hud_set_hotbar_itemcount(tc_form.hotbar_size)
   p_ref:set_inventory_formspec(p_inv)
+end
 
+function tc_form.register_listener()
   core.register_on_player_receive_fields(function(player, formname, fields)
     -- core.log("hmm: "..formname)
     -- core.get_player_window_information(player_name)

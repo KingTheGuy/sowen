@@ -14,14 +14,9 @@
 2 6
 3 15
 
-- [ ] figure out game name
-  - Rooted
-  - The Core (current name, comes from MC hardcore season... does not sound cozy, thought this is not really a 100% cozy game)
-  - Dusty (not sure I'd want to use this as game name)
-  - Bloodness Crown (cant see people calling it this, or it fitting the game)
-  - Sowed (may be too short)
-
 # BACKLOG:
+
+- [ ] scaffolding
 
 - [ ] custom made drop item entity
   - for more control over how it behaves
@@ -72,14 +67,58 @@
 - [ ] #BUG exiting a world while in the process oh placing down a "rope" will cause the game to crash
   - NOTE: not sure if I can fix this.
 
+- [ ] make the bunting flags wave/move around
+  - [ ] edit UV increase pixel density & allow for "wave" space
+  - [ ] possibly scale it down to 10 from 16
+    - currently the pixel size is much large than normal blocks (would include doing to other ropes\* too)
+
 # DOING:
+
+- [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
+
+- [ ] license
+  - MIT or something
+
+- [ ] door
+  - [ ] mesh model, animated open/closed
+  - [ ] 1x2 doors, normal sized
+  - [ ] 2x3 doors, like a town hall door
+  - [ ] 3x4 doors, like castle entrance door
+  - bigger than that?? make your own
+
+- [x] open brush menu when shift clicking
+
+- [x] tree schematic
+  - [x] leaves
+  - [x] variants
+  - [x] spawn
+  - [x] sapling
+    - [x] implement
+    - [x] item drop
+
+- [x] on place, get item in first item slot, if paint_brush paint the placed node
+- [x] auto paint
+  - selected paint color should be applied to the placed node, may need a
+  - like offhand and modifier slot, so the shape and color can be set
+
+- [ ] node,stairs,step,panels **definition**
+  - defining the main node also defines the variants
+  - [x] need to get "down" variants to not show in the craft menu
+  - [ ] chisel and hammer menu, this we make it so that only full blocks need to be in the crafting menu
+    - how should this work? [[#chisel and hammer]]
+
+- [ ] figure out game name
+  - Rooted
+  - The Core (current name, comes from MC hardcore season... does not sound cozy, thought this is not really a 100% cozy game)
+  - Dusty (not sure I'd want to use this as game name)
+  - Bloodness Crown (cant see people calling it this, or it fitting the game)
+  - Sowed (may be too short)
 
 - [x] swap colorfacedir for duplicate nodes
   - [x] fix the def; for some reason it does not like how this is looking
   - example: stairs -> stairs_up & stairs_down
 
-- [ ] node,stairs,step,panels **definition**
-  - defining the main node also defines the variants
+- [x] fix "down" node placement when looking at the bottom of a node
 
 - [x] flag colors
   - save the colors in data
@@ -108,7 +147,7 @@
   - [ ] paint_brush color menu
   - [ ] paint_brush
   - [ ] chisel_and_hammer needs to keep the color/param2 when switching nodes
-  - [ ] painting a node should keep the rotation/or param2
+  - [x] painting a node should keep the rotation/or param2
   - sadly colorfacedir only supports 8 colors.
     - [ ] ? add a popup message that says "cant use this color" and give it some of the main colors (put the main 8 colors at the front of the palette)
     - [ ] ? switch facedir to 4dir and replace node with 2 variants, one normal and one upside-down (rather not go this route)
@@ -133,6 +172,7 @@
 
 - [x] water
 - [ ] grass
+  - [ ] grass spread
 - [ ] tall grass
 - [ ] rocks
 - [ ] trees
@@ -280,6 +320,10 @@ Would need to space them out into different biomes.
 - Herb Paris
 - Henbane
 
+_trees:_
+
+check [ideas](~/Documents/the_core.rnote)
+
 ### mobs (FAUNA)
 
 **Maybe some of the smaller mobs could be be 2D and animated**
@@ -316,6 +360,7 @@ _100%:_
 
 _maybe/later on:_
 
+- owls
 - squirrels
 - vole (rat like, cuter)
 - cows
@@ -327,3 +372,12 @@ _maybe/later on:_
 - raven (I think they are kinda cool)
 - birds
 - mushroom creatures?
+
+#### chisel and hammer
+
+- paired with hotbar offhand slot... once variant is set in slot, any
+  block/node that gets placed there will be placed like that variant
+
+- or holding a key will open a menu and anything in that hotbar slot
+  will be converted to that variant that is chosen in the menu (similar
+  to age of mending)
