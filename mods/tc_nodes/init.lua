@@ -22,16 +22,32 @@ local group_plank = { oddly_breakable_by_hand = 3, planks = 1 }
 ---@param pointed_thing any
 ---@return any
 local function paint_on_place(itemstack, placer, pointed_thing)
-    -- core.item_place_node(itemstack, placer, pointed_thing)
-    local item_first_slot = placer:get_inventory():get_stack("main", 1)
-    if item_first_slot:get_name() == "tc_tools:paint_brush" then
-      local brush_def = core.registered_items[item_first_slot:get_name()]
-      local pointed = {above=pointed_thing.above,under=pointed_thing.above}
-      brush_def.on_place(item_first_slot,placer,pointed)
-    end
-    -- local count = itemstack:get_count()
-    -- itemstack:set_count(count - 1)
-    -- return itemstack
+  -- core.item_place_node(itemstack, placer, pointed_thing)
+  local item_first_slot = placer:get_inventory():get_stack("main", 1)
+  if item_first_slot:get_name() == "tc_tools:paint_brush" then
+    local brush_def = core.registered_items[item_first_slot:get_name()]
+    local pointed = { above = pointed_thing.above, under = pointed_thing.above }
+    brush_def.on_place(item_first_slot, placer, pointed)
+  end
+  -- local count = itemstack:get_count()
+  -- itemstack:set_count(count - 1)
+  -- return itemstack
+end
+
+local function _update_nodes(pos)
+  local locs = {
+    pos:add(vector.new(0, 1, 0)),
+    pos:add(vector.new(0, -1, 0)),
+    pos:add(vector.new(1, 0, 0)),
+    pos:add(vector.new(-1, 0, 0)),
+    pos:add(vector.new(0, 0, 1)),
+    pos:add(vector.new(0, 0, -1))
+  }
+  for _, v_pos in ipairs(locs) do
+    local name = core.get_node(v_pos).name
+    local node_def = core.registered_nodes[name]
+    if node_def._update then node_def._update(v_pos) end
+  end
 end
 
 --- drop item from node, will go direclty into player_inv player is close enough and there is space
@@ -327,6 +343,10 @@ function tc_nodes.register_node_plus(name, def)
   def.after_place_node = function(pos, placer, itemstack, pointed_thing)
     --- NOTE: does not seem to like when previous node is buildable_to
     paint_on_place(itemstack, placer, pointed_thing)
+    _update_nodes(pos)
+  end
+  def.after_destruct = function(pos, oldnode)
+    _update_nodes(pos)
   end
 
   def.paramtype2 = "color"
@@ -359,6 +379,9 @@ local function create_node(name, def)
   def.after_place_node = function(pos, placer, itemstack, pointed_thing)
     --- NOTE: does not seem to like when previous node is buildable_to
     paint_on_place(itemstack, placer, pointed_thing)
+  end
+  def.after_destruct = function(pos, oldnode)
+    _update_nodes(pos)
   end
 
   -- def.drawtype = def.drawtype or "normal" -- See "Node drawtypes"
@@ -926,6 +949,12 @@ create_grass_like("tall_grass", {
     { groups = { knife = 1 }, item = "tc_items:plant_fiber" },
   },
   buildable_to = true,
+  _update = function(pos)
+    local is_air = core.get_node(pos:add(vector.new(0, -1, 0)))
+    if is_air.name == "air" or is_air.name == "" then
+      core.remove_node(pos)
+    end
+  end
 })
 
 create_grass_like("oak_sapling", {
@@ -947,8 +976,8 @@ create_grass_like("oak_sapling", {
     core.remove_node(pos)
     core.place_schematic(
       pos,
-      mod_path.."/../tc_mapgen/schematics/tree"..math.random(1,3)..".mts",
-      math.random(0,3)*90,
+      mod_path .. "/../tc_mapgen/schematics/tree" .. math.random(1, 3) .. ".mts",
+      math.random(0, 3) * 90,
       {},
       false,
       "place_center_x, place_center_z"
@@ -1244,8 +1273,8 @@ create_node("oak_leaves", {
   sounds = tc_sounds.plant(),
   drops = {
     { groups = { oddly_breakable_by_hand = 1 }, item = "tc_nodes:oak_sapling" },
-    { groups = { rose = 1 }, item = "tc_nodes:oak_leaves" },
-    { groups = { knife = 1 }, item = "tc_nodes:oak_sapling" },
+    { groups = { rose = 1 },                    item = "tc_nodes:oak_leaves" },
+    { groups = { knife = 1 },                   item = "tc_nodes:oak_sapling" },
   },
 
 })
@@ -1273,7 +1302,76 @@ tc_nodes.register_node_plus("grass", {
     { groups = { pickaxe = 1 }, item = "tc_nodes:dirt" },
   },
   groups = { pickaxe = 3, soil = 1 },
-  sounds = tc_sounds.dirt()
+  sounds = tc_sounds.dirt(),
+
+  on_construct = function(pos)
+    core.get_node_timer(pos):start(math.random(2))
+  end,
+
+  _update = function(pos)
+    local node = core.get_node(pos)
+    local node_def = core.registered_nodes[node.name]
+    core.get_node_timer(pos):start(math.random(2))
+  end,
+
+  on_timer = function(pos, elapsed, node, timeout)
+    -- core.log("timer!")
+    -- core.add_particle({
+    --   size = 4,
+    --   pos = pos:add(vector.new(0, 1, 0)),
+    --   -- texture = "[fill:1x1:" .. "#fff",
+    --   texture = "[fill:4x4:#fff",
+    --   -- velocity = vector.new(0, 1, 0),
+    --   expirationtime = 1,
+    --   glow = 14,
+    -- })
+    --- TRY SPREAD, convert dirt to grass
+    if math.random(8) == 8 then
+      --- check self
+      local node_above = core.get_node(pos:add(vector.new(0, 1, 0)))
+      local node_def = core.registered_nodes[node_above.name]
+      -- step,panel,stairs.. should use a group
+      if node_above.name ~= "air" or node_above.name ~= "" then
+        if string.find(node_above.name, "_panel") == nil then
+        if string.find(node_above.name, "_step") == nil then
+        if string.find(node_above.name, "_stairs") == nil then
+          if node_def.buildable_to == false then
+            -- stay grass
+            -- core.log("converting to dirt!!!")
+            core.set_node(pos, { name = mod_name .. ":dirt" })
+            return false
+          end
+        end
+        end
+        end
+      end
+      local locs = {
+        -- pos:add(vector.new(0,1,0)),
+        -- pos:add(vector.new(0,-1,0)),
+        pos:add(vector.new(1, 0, 0)),
+        pos:add(vector.new(-1, 0, 0)),
+        pos:add(vector.new(0, 0, 1)),
+        pos:add(vector.new(0, 0, -1))
+      }
+      --- check surrounding
+      for _, v_pos in ipairs(locs) do
+        local name = core.get_node(v_pos).name
+        -- local node_def = core.registered_nodes[name]
+        if name == mod_name .. ":dirt" then
+          local on_dirt = core.get_node(v_pos:add(vector.new(0, 1, 0))) -- node above the new possible grass
+          local on_dirt_def = core.registered_nodes[on_dirt.name]
+          -- step,panel,stairs.. should use a group
+          if on_dirt.name == "air" or on_dirt.name == "" or on_dirt_def.buildable_to == true or string.find(on_dirt.name, "_panel") or string.find(on_dirt.name, "_step") or string.find(on_dirt.name, "_stairs") then
+            -- core.log("node next to me is dirt, lets set it to grass")
+            core.set_node(v_pos, node)
+          end
+        end
+        -- if node_def._update then node_def._update(v_pos) end
+      end
+      return false
+    end
+    return true
+  end,
 })
 
 tc_nodes.register_node_plus("dirt", {
@@ -1281,7 +1379,8 @@ tc_nodes.register_node_plus("dirt", {
   drops = {
     { groups = { pickaxe = 1 }, item = "tc_nodes:dirt" },
   },
-  groups = { pickaxe = 3, soil = 1 }
+  groups = { pickaxe = 3, soil = 1 },
+  sounds = tc_sounds.dirt(),
 })
 
 tc_nodes.register_node_plus("cobblestone", {
