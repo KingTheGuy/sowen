@@ -182,7 +182,7 @@ Put in hotbar 1 to place and color blocks.
     else
     end
     -- core.log("color: " .. color)
-    core.sound_play(tc_sounds.stone().dug, { pos = pointed_thing.above })
+    core.sound_play(tc_sounds.pickup().dug, { pos = pointed_thing.above,pitch=3.8 })
 
     local eye = user:get_properties().eye_height
     local p_pos = user:get_pos()
@@ -302,7 +302,7 @@ Put in hotbar 1 to place and color blocks.
     for i = 1, 2, 1 do
       if i == 2 then
         core.after(0.25, function()
-          core.sound_play(tc_sounds.stone().dug, { pos = pointed_thing.under })
+          core.sound_play(tc_sounds.pickup().dug, { pos = pointed_thing.under,pitch = 1.5,gain=0.1 })
           texture = texture .. "^[transform4"
           particle.texture = texture
           core.add_particle(particle)
@@ -334,7 +334,7 @@ Put in hotbar 1 to place and color blocks.
           -- })
         end)
       else
-        core.sound_play(tc_sounds.dirt().dug, { pos = splat_pos })
+        core.sound_play(tc_sounds.pickup().dug, { pos = splat_pos,pitch=1.5,gain=0.1 })
         core.add_particle(particle)
       end
     end

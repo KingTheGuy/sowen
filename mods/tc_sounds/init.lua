@@ -6,53 +6,36 @@ tc_sounds = {}
 function tc_sounds.stone()
   return {
     footstep = {
-      name = "tc_stone_footstep"
+      name = "stone_footstep"
     },
     place = {
-      name = "tc_stone_footstep"
+      name = "stone_footstep"
     },
     dig = {
-      name = "tc_stone_footstep",
+      name = "stone_footstep",
       pitch = 0.8,
     },
     dug = {
-      name = "tc_stone_footstep",
+      name = "stone_footstep",
       pitch = 0.7,
     },
   }
 end
 
-
-function tc_sounds.dirt()
+function tc_sounds.leaves()
   return {
     footstep = {
-      name = "tc_dirt_footstep"
+      name = "leaves_footstep",
+      -- pitch = 1.7,
     },
     place = {
-      name = "tc_dirt_footstep"
+      name = "leaves_footstep"
     },
     dig = {
-      name = "tc_dirt_footstep"
+      name = "leaves_footstep"
     },
     dug = {
-      name = "tc_dirt_footstep"
-    },
-  }
-end
-
-function tc_sounds.plant()
-  return {
-    footstep = {
-      name = "tc_plant_footstep"
-    },
-    place = {
-      name = "tc_plant_footstep"
-    },
-    dig = {
-      name = "tc_plant_footstep"
-    },
-    dug = {
-      name = "tc_plant_footstep"
+      name = "leaves_footstep"
     },
   }
 end
@@ -61,35 +44,75 @@ end
 function tc_sounds.pickup()
   return {
     footstep = {
-      name = "tc_pickup"
+      name = "pickup"
     },
     place = {
-      name = "tc_pickup"
+      name = "pickup"
     },
     dig = {
-      name = "tc_pickup"
+      name = "pickup"
     },
     dug = {
-      name = "tc_pickup",
+      name = "pickup",
       pitch = 1.8,
       gain = 1.5,
     },
   }
 end
 
-function tc_sounds.plank()
+function tc_sounds.grass()
   return {
     footstep = {
-      name = "tc_plank_footstep"
+      name = "grass_footstep",
+      -- pitch = 1.8,
+      gain = 0.5,
     },
     place = {
-      name = "tc_plank_footstep"
+      name = "grass_footstep"
     },
     dig = {
-      name = "tc_plank_footstep"
+      name = "grass_footstep"
     },
     dug = {
-      name = "tc_plank_footstep",
+      name = "grass_footstep"
+    },
+  }
+end
+
+function tc_sounds.dirt()
+  return {
+    footstep = {
+      name = "dirt_footstep"
+    },
+    place = {
+      name = "dirt_footstep",
+      gain = 1.5,
+      pitch = 1.5,
+    },
+    dig = {
+      name = "dirt_footstep"
+    },
+    dug = {
+      name = "dirt_footstep"
+    },
+  }
+end
+
+function tc_sounds.wood()
+  return {
+    footstep = {
+      name = "wood_footstep",
+      -- pitch = 1.5,
+      -- gain = 1.0,
+    },
+    place = {
+      name = "wood_footstep"
+    },
+    dig = {
+      name = "wood_footstep"
+    },
+    dug = {
+      name = "wood_footstep"
     },
   }
 end

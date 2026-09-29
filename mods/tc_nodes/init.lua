@@ -44,6 +44,15 @@ local function _update_nodes(pos)
     pos:add(vector.new(0, 0, -1))
   }
   for _, v_pos in ipairs(locs) do
+    -- core.add_particle({
+    --   size = 4,
+    --   pos = v_pos,
+    --   -- texture = "[fill:1x1:" .. "#fff",
+    --   texture = "[fill:4x4:".."#439345",
+    --   velocity = vector.new(0, 1, 0),
+    --   expirationtime = 1,
+    --   glow = 14,
+    -- })
     local name = core.get_node(v_pos).name
     local node_def = core.registered_nodes[name]
     if node_def._update then node_def._update(v_pos) end
@@ -332,7 +341,7 @@ function tc_nodes.register_node_plus(name, def)
   -- stairs up/down
   -- panel
   -- steps up/down
-  def.sounds = def.sounds or tc_sounds.plank()
+  def.sounds = def.sounds or tc_sounds.wood()
 
   def.drop = mod_name .. ":" .. name
   def.drops = def.drops or nil
@@ -433,7 +442,7 @@ local function create_grass_like(name, def)
 
   --   return true
   -- end
-  def.sounds = tc_sounds.plant()
+  def.sounds = tc_sounds.leaves()
   def.groups = defualt_node_groups
   def.drawtype = "plantlike"
   def.paramtype = "light"
@@ -487,7 +496,7 @@ local function create_grass_like(name, def)
 end
 
 local function create_planks(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   def.paramtype2 = "color"
   def.palette = tc_init.color_palette .. ""
   local log_size = { -0.5, -0.5, -0.5, 0.5, 0.5, 0.5 }
@@ -566,7 +575,7 @@ end
 
 
 local function create_planks_step_up(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   local log_size = { 0.5, -0.5, 0.5, -0.5, 0.0, 0.0 }
   def.drawtype = "nodebox"
   def.sunlight_propagates = true
@@ -623,7 +632,7 @@ end
 
 
 local function create_planks_step_down(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   local log_size = { 0.5, 0.0, 0.5, -0.5, 0.5, 0.0 }
   def.drop = mod_name .. ":" .. name .. "_up"
   def.drawtype = "nodebox"
@@ -677,7 +686,7 @@ end
 
 
 local function create_planks_stairs_up(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   local log_size = {
     { 0.5,  0.0,  0.5,  -0.5, 0.5, 0.0 },
     { -0.5, -0.5, -0.5, 0.5,  0.0, 0.5 },
@@ -732,7 +741,7 @@ end
 
 
 local function create_planks_stairs_down(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   local log_size = {
     { 0.5,  -0.5, 0.5,  -0.5, 0.0, 0.0 },
     { -0.5, 0.0,  -0.5, 0.5,  0.5, 0.5 },
@@ -781,7 +790,7 @@ function tc_nodes.register_panel(name, def)
   for key, kv in pairs(def) do
     node_def[key] = kv
   end
-  node_def.sounds = tc_sounds.plank()
+  node_def.sounds = tc_sounds.wood()
   local shape = { -0.5, -0.5, -0.5, 0.5, 0.0, 0.5 }
   -- node_def.paramtype2 = "4dir"
   node_def.sunlight_propagates = true
@@ -807,7 +816,7 @@ function tc_nodes.register_panel(name, def)
 end
 
 local function create_log(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   local log_size = { -0.5, -0.5, -0.5, 0.5, 0.5, 0.5 }
   def.drawtype = "node"
   def.node_box = {
@@ -840,7 +849,7 @@ local function create_log(name, def)
 end
 
 local function create_log_thin(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   -- def.sunlight_propagates = false
   -- def.paramtype = "light"
   -- def.paramtype2 = "wallmounted"
@@ -880,7 +889,7 @@ local function create_log_thin(name, def)
 end
 
 local function create_log_branch(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   def.sunlight_propagates = true
   def.paramtype = "light"
   -- def.paramtype2 = "wallmounted"
@@ -921,7 +930,7 @@ end
 
 ---FIXME: only have function as a chopping if it is point ip
 local function create_chopping_log(name, def)
-  def.sounds = tc_sounds.plank()
+  def.sounds = tc_sounds.wood()
   def.sunlight_propagates = true
   def.paramtype = "light"
   def.drawtype = "nodebox"
@@ -1270,7 +1279,7 @@ create_node("oak_leaves", {
     type = "fixed",
     fixed = { -0.4, -0.4, -0.4, 0.4, 0.4, 0.4 }
   },
-  sounds = tc_sounds.plant(),
+  sounds = tc_sounds.leaves(),
   drops = {
     { groups = { oddly_breakable_by_hand = 1 }, item = "tc_nodes:oak_sapling" },
     { groups = { rose = 1 },                    item = "tc_nodes:oak_leaves" },
@@ -1284,7 +1293,8 @@ tc_nodes.register_node_plus("concrete", {
   drops = {
     { groups = { pickaxe = 1 }, item = "tc_nodes:concrete" },
   },
-  groups = { pickaxe = 1 }
+  groups = { pickaxe = 1 },
+  sounds = tc_sounds.stone()
 })
 
 tc_nodes.register_node_plus("cave_ground", {
@@ -1292,7 +1302,8 @@ tc_nodes.register_node_plus("cave_ground", {
   drops = {
     { groups = { pickaxe = 1 }, item = "tc_nodes:cave_ground" },
   },
-  groups = { pickaxe = 2 }
+  groups = { pickaxe = 2 },
+  sounds = tc_sounds.stone()
 })
 
 tc_nodes.register_node_plus("grass", {
@@ -1302,7 +1313,7 @@ tc_nodes.register_node_plus("grass", {
     { groups = { pickaxe = 1 }, item = "tc_nodes:dirt" },
   },
   groups = { pickaxe = 3, soil = 1 },
-  sounds = tc_sounds.dirt(),
+  sounds = tc_sounds.grass(),
 
   on_construct = function(pos)
     core.get_node_timer(pos):start(math.random(2))
@@ -1333,16 +1344,16 @@ tc_nodes.register_node_plus("grass", {
       -- step,panel,stairs.. should use a group
       if node_above.name ~= "air" or node_above.name ~= "" then
         if string.find(node_above.name, "_panel") == nil then
-        if string.find(node_above.name, "_step") == nil then
-        if string.find(node_above.name, "_stairs") == nil then
-          if node_def.buildable_to == false then
-            -- stay grass
-            -- core.log("converting to dirt!!!")
-            core.set_node(pos, { name = mod_name .. ":dirt" })
-            return false
+          if string.find(node_above.name, "_step") == nil then
+            if string.find(node_above.name, "_stairs") == nil then
+              if node_def.buildable_to == false then
+                -- stay grass
+                -- core.log("converting to dirt!!!")
+                core.set_node(pos, { name = mod_name .. ":dirt" })
+                return false
+              end
+            end
           end
-        end
-        end
         end
       end
       local locs = {
@@ -1381,6 +1392,22 @@ tc_nodes.register_node_plus("dirt", {
   },
   groups = { pickaxe = 3, soil = 1 },
   sounds = tc_sounds.dirt(),
+  -- tell other nodes around it to attempt to update (tell grass to spread over)
+  _update = function(pos)
+    local locs = {
+      pos:add(vector.new(1, 0, 0)),
+      pos:add(vector.new(-1, 0, 0)),
+      pos:add(vector.new(0, 0, 1)),
+      pos:add(vector.new(0, 0, -1))
+    }
+    for _, v_pos in ipairs(locs) do
+      local name = core.get_node(v_pos).name
+      if name ~= "tc_nodes:dirt" then
+        local node_def = core.registered_nodes[name]
+        if node_def._update then node_def._update(v_pos) end
+      end
+    end
+  end,
 })
 
 tc_nodes.register_node_plus("cobblestone", {
@@ -1389,6 +1416,7 @@ tc_nodes.register_node_plus("cobblestone", {
     { groups = { pickaxe = 1 }, item = "tc_nodes:cobblestone" },
   },
   groups = { pickaxe = 2, nodes = 1 },
+  sounds = tc_sounds.stone()
 })
 
 tc_nodes.register_node_plus("stone", {
@@ -1398,6 +1426,7 @@ tc_nodes.register_node_plus("stone", {
     { groups = { pickaxe = 1 },           item = "tc_nodes:cobblestone" },
   },
   groups = { pickaxe = 1, nodes = 1 },
+  sounds = tc_sounds.stone()
 })
 
 tc_nodes.register_node_plus("stone_bricks", {
@@ -1406,6 +1435,7 @@ tc_nodes.register_node_plus("stone_bricks", {
     { groups = { pickaxe = 1 }, item = "tc_nodes:stone_bricks" },
   },
   groups = { pickaxe = 1, nodes = 1 },
+  sounds = tc_sounds.stone()
 })
 ---TODO:
 -- log,log_thin -> stripped, stairs, step, fence

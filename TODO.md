@@ -16,6 +16,8 @@
 
 # BACKLOG:
 
+- [ ] have panel placement be more like placement_preview mod
+
 - [ ] scaffolding
 
 - [ ] custom made drop item entity
@@ -74,10 +76,31 @@
 
 # DOING:
 
-- [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
+- [ ] figure out game name
+  - Sowen
+  - Rootwake
+  - Rootbound
+  - Sowed (may be too short)
+  - Soweth
+  - Verdren (kinda sounds like virgin)
+  - Rotha
+  - Verdem
+  - Rooted
+  - The Core (current name, comes from MC hardcore season... does not sound cozy, thought this is not really a 100% cozy game)
+  - Dusty (not sure I'd want to use this as game name)
+  - Bloodness Crown (cant see people calling it this, or it fitting the game)
 
-- [ ] license
-  - MIT or something
+- [x] license
+  - [x] MIT for code and CC-BY-4.0 for media
+  - [x] replace all audio (currently sound effects grabbed from the_gorge)
+  - yes some textures are also from the_gorge, but I was the creator of those textures (stone,concrete,dirt,cave_ground)
+  - [x] grass
+  - [x] dirt
+  - [x] wood
+  - [x] stone
+  - [x] plants
+
+- [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
 
 - [ ] door
   - [ ] mesh model, animated open/closed
@@ -106,13 +129,6 @@
   - [x] need to get "down" variants to not show in the craft menu
   - [ ] chisel and hammer menu, this we make it so that only full blocks need to be in the crafting menu
     - how should this work? [[#chisel and hammer]]
-
-- [ ] figure out game name
-  - Rooted
-  - The Core (current name, comes from MC hardcore season... does not sound cozy, thought this is not really a 100% cozy game)
-  - Dusty (not sure I'd want to use this as game name)
-  - Bloodness Crown (cant see people calling it this, or it fitting the game)
-  - Sowed (may be too short)
 
 - [x] swap colorfacedir for duplicate nodes
   - [x] fix the def; for some reason it does not like how this is looking
