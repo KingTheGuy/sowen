@@ -36,7 +36,7 @@ function tc_init.pickup_indicator(player, item_or_msg, amount)
       end
     end
     -- core.log("inv: "..dump(p_inv))
-    msg = string.format("added %s x%s", string.gsub(string.split(item_or_msg,":")[2],"_"," "), all_stack)
+    msg = string.format("added %s x%s", string.gsub(string.split(item_or_msg, ":")[2], "_", " "), all_stack)
   end
 
 
@@ -69,11 +69,12 @@ local tick = 0
 core.register_globalstep(function(dtime)
   -- tick = tick + 1
   -- if tick >= 20 then
-    for p_name, hud in pairs(tc_init.player_huds) do
-      ---type pickupHud
-      if hud.pickup_hud ~= nil then
-        hud.pickup_hud.timeout = hud.pickup_hud.timeout - 1
-        local p_ref = core.get_player_by_name(p_name)
+  for p_name, hud in pairs(tc_init.player_huds) do
+    ---type pickupHud
+    if hud.pickup_hud ~= nil then
+      hud.pickup_hud.timeout = hud.pickup_hud.timeout - 1
+      local p_ref = core.get_player_by_name(p_name)
+      if p_ref ~= nil then
         -- local updated_text = string.sub(hud.text, 2, #hud.text)
         local updated_text = hud.text
         hud.text = updated_text
@@ -82,15 +83,16 @@ core.register_globalstep(function(dtime)
         if pos.y > 0.15 then
           pos.y = pos.y - 0.01
         end
-        p_ref:hud_change(hud.pickup_hud.id, "position", {x=pos.x,y=pos.y})
+        p_ref:hud_change(hud.pickup_hud.id, "position", { x = pos.x, y = pos.y })
         if hud.pickup_hud.timeout <= 0 then
           p_ref:hud_remove(hud.pickup_hud.id)
           tc_init.player_huds[p_name].pickup_hud = nil
-        -- elseif hud.pickup_hud.timeout >= 4 then
-        --   p_ref:hud_change(hud.pickup_hud.id, "position", { x = 0.01, y = 0.2 })
+          -- elseif hud.pickup_hud.timeout >= 4 then
+          --   p_ref:hud_change(hud.pickup_hud.id, "position", { x = 0.01, y = 0.2 })
         end
       end
     end
-    -- tick = 0
+  end
+  -- tick = 0
   -- end
 end)

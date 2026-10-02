@@ -77,9 +77,11 @@ create_tool("chisel_and_hammer", {
   wield_image = mod_name .. "_chisel.png",
 
   on_use = function(itemstack, user, pointed_thing)
-    local node = core.get_node(pointed_thing.under)
-    core.log("point: " .. dump(pointed_thing))
-    core.log("param2:" .. node.param2)
+    if pointed_thing.under ~= nil then
+      local node = core.get_node(pointed_thing.under)
+      core.log("point: " .. dump(pointed_thing))
+      core.log("param2:" .. node.param2)
+    end
     -- core.log("dir: "..dump(core.facedir_to_dir(node.param2)))
   end,
 
@@ -113,7 +115,7 @@ local col = 1
 for i = 1, 31, 1 do
   colors = colors ..
       tc_form.button({ col + padding, row + padding }, { 1, 1 }, "wash off", "paint_color:" .. i,
-        string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", i))
+        string.format(tc_init.color_palette .. "^[sheet:256x1:%s,0", i))
   col = col + 1
   if col == 9 then
     row = row + 1
@@ -149,7 +151,9 @@ Put in hotbar 1 to place and color blocks.
 
   update_paint_brush = function(player, item, color)
     item:get_meta():set_int("_color", color)
-    local brush_overlay =  mod_name .. "_paint_brush.png^(" .. string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)"
+    local brush_overlay = mod_name ..
+    "_paint_brush.png^(" ..
+    string.format(tc_init.color_palette .. "^[sheet:256x1:%s,0", color) .. "^[mask:tc_tools_paint_brush_overlay.png)"
     item:get_meta():set_string("inventory_image", brush_overlay)
     item:get_meta():set_string("wield_image", brush_overlay)
     player:set_wielded_item(item, true)
@@ -182,7 +186,7 @@ Put in hotbar 1 to place and color blocks.
     else
     end
     -- core.log("color: " .. color)
-    core.sound_play(tc_sounds.pickup().dug, { pos = pointed_thing.above,pitch=3.8 })
+    core.sound_play(tc_sounds.pickup().dug, { pos = pointed_thing.above, pitch = 3.8 })
 
     local eye = user:get_properties().eye_height
     local p_pos = user:get_pos()
@@ -191,7 +195,7 @@ Put in hotbar 1 to place and color blocks.
     local splat_pos = pointed_thing.above:add(pointed_thing.under):divide(2)
     local vel = p_pos:subtract(splat_pos):divide(2)
 
-    local texture = string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", color) ..
+    local texture = string.format(tc_init.color_palette .. "^[sheet:256x1:%s,0", color) ..
         "^[mask:tc_items_item_particle.png"
     core.add_particle({
       size = 8,
@@ -271,7 +275,7 @@ Put in hotbar 1 to place and color blocks.
     local splat_pos = pointed_thing.above:add(pointed_thing.under):divide(2)
     local vel = p_pos:subtract(splat_pos):divide(2)
     -- core.log("splat pos: "..dump(splat_pos))
-    local texture = string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", p_index) ..
+    local texture = string.format(tc_init.color_palette .. "^[sheet:256x1:%s,0", p_index) ..
         "^[mask:tc_tools_paint_ani.png"
     local particle = {
       size = 8,
@@ -302,7 +306,7 @@ Put in hotbar 1 to place and color blocks.
     for i = 1, 2, 1 do
       if i == 2 then
         core.after(0.25, function()
-          core.sound_play(tc_sounds.pickup().dug, { pos = pointed_thing.under,pitch = 1.5,gain=0.1 })
+          core.sound_play(tc_sounds.pickup().dug, { pos = pointed_thing.under, pitch = 1.5, gain = 0.1 })
           texture = texture .. "^[transform4"
           particle.texture = texture
           core.add_particle(particle)
@@ -334,7 +338,7 @@ Put in hotbar 1 to place and color blocks.
           -- })
         end)
       else
-        core.sound_play(tc_sounds.pickup().dug, { pos = splat_pos,pitch=1.5,gain=0.1 })
+        core.sound_play(tc_sounds.pickup().dug, { pos = splat_pos, pitch = 1.5, gain = 0.1 })
         core.add_particle(particle)
       end
     end
@@ -409,7 +413,7 @@ core.register_chatcommand("pc", {
       wield:get_meta():set_string("inventory_image",
         mod_name ..
         "_paint_brush.png^(" ..
-        string.format(tc_init.color_palette.."^[sheet:256x1:%s,0", param) .. "^[mask:tc_tools_paint_brush_overlay.png)")
+        string.format(tc_init.color_palette .. "^[sheet:256x1:%s,0", param) .. "^[mask:tc_tools_paint_brush_overlay.png)")
       p_ref:set_wielded_item(wield, true)
     else
       core.log("not holding paint brush")
