@@ -1,2 +1,2 @@
 # only turn on if your working on dev for the game
-tc_build_mode (build mode) bool false
+sw_build_mode (build mode) bool false

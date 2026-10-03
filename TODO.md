@@ -76,8 +76,8 @@
 
 # DOING:
 
-- [ ] figure out game name
-  - Sowen
+- [x] figure out game name
+  - **Sowen**
   - Rootwake
   - Rootbound
   - Sowed (may be too short)
