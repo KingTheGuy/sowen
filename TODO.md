@@ -76,6 +76,30 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
 
 # DOING:
 
+- [ ] form stuff
+  - [ ] form helpers
+  - [ ] inventory
+  - [ ] get all nodes/item in a menu
+  - [ ] crafting
+  - look at `not_in_creative_inventory`
+  - categories -> each category will have its own "workbench"
+  - in creative mode, show small menu that lets player select "workbench"
+
+- [ ] #BUG
+
+```log
+  /root/.minetest/games/sowen/mods/sw_nodes/init.lua:58: in function '_update_nodes'
+  /root/.minetest/games/sowen/mods/sw_nodes/init.lua:358: in function </root/.minetest/games/sowen/mods/sw_nodes/init.lua:357>
+  [C]: in function 'remove_node'
+  /root/.minetest/games/sowen/mods/sw_nodes/init.lua:121: in function 'onDig'
+  /root/.minetest/games/sowen/mods/sw_nodes/init.lua:349: in function </root/.minetest/games/sowen/mods/sw_nodes/init.lua:348>"
+   traceback:
+  [C]: in function 'remove_node'
+  /root/.minetest/games/sowen/mods/sw_nodes/init.lua:121: in function 'onDig'
+  /root/.minetest/games/sowen/mods/sw_nodes/init.lua:349: in function </root/.minetest/games/sowen/mods/sw_nodes/init.lua:348>
+
+```
+
 - [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
 
 - [ ] door
@@ -117,15 +141,6 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
   - color overlay should be masked and applied to areas
   - flip flop between coloring the main flag and second flag
   - tools/entities file
-
-- [ ] form stuff
-  - [ ] form helpers
-  - [ ] inventory
-  - [ ] get all nodes/item in a menu
-  - [ ] crafting
-  - look at `not_in_creative_inventory`
-  - categories -> each category will have its own "workbench"
-  - in creative mode, show small menu that lets player select "workbench"
 
 - [ ] cables
   - currently just a simple visual thing
