@@ -1,15 +1,17 @@
 ## What is this?
 
-this is a game
+**Sowen** a luanti game.
+
+Currently there is only building / decorating.
 
 ## License
 
-### Code
+### Code License
 
 The source code is licensed under the MIT License.
 See [LICENSE](LICENSE).
 
-### Assets
+### Assets License
 
 Original textures, models, sounds, music, images, and other media are licensed
 under the Creative Commons Attribution 4.0 International License.

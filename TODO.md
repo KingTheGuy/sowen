@@ -1,6 +1,6 @@
 # TODO:
 
-[ideas](~/Documents/the_core.rnote)
+check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
 
 ### rotation stuff:
 
@@ -75,30 +75,6 @@
     - currently the pixel size is much large than normal blocks (would include doing to other ropes\* too)
 
 # DOING:
-
-- [x] figure out game name
-  - **Sowen**
-  - Rootwake
-  - Rootbound
-  - Sowed (may be too short)
-  - Soweth
-  - Verdren (kinda sounds like virgin)
-  - Rotha
-  - Verdem
-  - Rooted
-  - The Core (current name, comes from MC hardcore season... does not sound cozy, thought this is not really a 100% cozy game)
-  - Dusty (not sure I'd want to use this as game name)
-  - Bloodness Crown (cant see people calling it this, or it fitting the game)
-
-- [x] license
-  - [x] MIT for code and CC-BY-4.0 for media
-  - [x] replace all audio (currently sound effects grabbed from the_gorge)
-  - yes some textures are also from the_gorge, but I was the creator of those textures (stone,concrete,dirt,cave_ground)
-  - [x] grass
-  - [x] dirt
-  - [x] wood
-  - [x] stone
-  - [x] plants
 
 - [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
 
@@ -199,6 +175,8 @@
   - [ ] can I clean this up a bit?
 
 - [ ] global tick, check player inv, and move dropped item into player's inventory?
+
+# IDEAS
 
 **figure out how involved this should be**
 
@@ -388,6 +366,7 @@ _maybe/later on:_
 - raven (I think they are kinda cool)
 - birds
 - mushroom creatures?
+- Sea Otter
 
 #### chisel and hammer
 
