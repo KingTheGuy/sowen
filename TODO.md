@@ -97,7 +97,6 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
   [C]: in function 'remove_node'
   /root/.minetest/games/sowen/mods/sw_nodes/init.lua:121: in function 'onDig'
   /root/.minetest/games/sowen/mods/sw_nodes/init.lua:349: in function </root/.minetest/games/sowen/mods/sw_nodes/init.lua:348>
-
 ```
 
 - [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
@@ -109,38 +108,11 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
   - [ ] 3x4 doors, like castle entrance door
   - bigger than that?? make your own
 
-- [x] open brush menu when shift clicking
-
-- [x] tree schematic
-  - [x] leaves
-  - [x] variants
-  - [x] spawn
-  - [x] sapling
-    - [x] implement
-    - [x] item drop
-
-- [x] on place, get item in first item slot, if paint_brush paint the placed node
-- [x] auto paint
-  - selected paint color should be applied to the placed node, may need a
-  - like offhand and modifier slot, so the shape and color can be set
-
 - [ ] node,stairs,step,panels **definition**
   - defining the main node also defines the variants
   - [x] need to get "down" variants to not show in the craft menu
   - [ ] chisel and hammer menu, this we make it so that only full blocks need to be in the crafting menu
     - how should this work? [[#chisel and hammer]]
-
-- [x] swap colorfacedir for duplicate nodes
-  - [x] fix the def; for some reason it does not like how this is looking
-  - example: stairs -> stairs_up & stairs_down
-
-- [x] fix "down" node placement when looking at the bottom of a node
-
-- [x] flag colors
-  - save the colors in data
-  - color overlay should be masked and applied to areas
-  - flip flop between coloring the main flag and second flag
-  - tools/entities file
 
 - [ ] cables
   - currently just a simple visual thing
@@ -168,8 +140,6 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
 
 - [ ] wood_cutter/stone_cutter..etc. will provide extra nodes of which the chisel_and_hammer can then be used for the variants
 
-- [x] indicator that tells the they have picked up something
-
 - [ ] node drops
   - should be somewhat similar to the node drop table
   - ??? hmm how should I do this?
@@ -177,12 +147,7 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
   - [ ] take into account tool group
   - groups / tool_capabilities; groupcaps... are annoying and confusing to deal with
 
-- [x] water
-- [ ] grass
-  - [ ] grass spread
-- [ ] tall grass
-- [ ] rocks
-- [ ] trees
+- [ ] rocks (like pebbles, flint)
 
 - [x] override item entity
   - [x] when dropped from nodes have a particle show up; but if dropped by the player, don't
@@ -190,6 +155,36 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
   - [ ] can I clean this up a bit?
 
 - [ ] global tick, check player inv, and move dropped item into player's inventory?
+
+## DONE:
+
+- [x] open brush menu when shift clicking
+- [x] tree schematic
+  - [x] leaves
+  - [x] variants
+  - [x] spawn
+  - [x] sapling
+    - [x] implement
+    - [x] item drop
+- [x] on place, get item in first item slot, if paint_brush paint the placed node
+- [x] auto paint
+  - selected paint color should be applied to the placed node, may need a
+  - like offhand and modifier slot, so the shape and color can be set
+- [x] swap colorfacedir for duplicate nodes
+  - [x] fix the def; for some reason it does not like how this is looking
+  - example: stairs -> stairs_up & stairs_down
+- [x] indicator that tells the they have picked up something
+- [x] fix "down" node placement when looking at the bottom of a node
+- [x] water
+- [x] grass
+  - [x] grass spread
+- [x] tall grass
+- [x] trees
+- [x] flag colors
+  - save the colors in data
+  - color overlay should be masked and applied to areas
+  - flip flop between coloring the main flag and second flag
+  - tools/entities file
 
 # IDEAS
 

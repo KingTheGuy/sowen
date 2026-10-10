@@ -1165,7 +1165,7 @@ create_light_source("torch_wall", {
     },
   },
   diggable = true,
-  groups = { oddly_breakable_by_hand = 3, wallmounted = 1 },
+  groups = { oddly_breakable_by_hand = 3, wallmounted = 1, not_in_creative_inventory =1 },
   sunlight_propagates = true,
   walkable = false,
   node_box = {
@@ -1217,6 +1217,7 @@ create_flowing_node("water_flowing", {
   liquidtype = "flowing", -- specifies liquid flowing physics
   tiles = { mod_name .. "_water.png" .. "^[opacity:120" },
   special_tiles = { mod_name .. "_water.png" .. "^[opacity:120", mod_name .. "_water.png" .. "^[opacity:120" },
+  groups = { not_in_creative_inventory = 1},
   use_texture_alpha = "blend",
   liquid_renewable = false,
   liquid_viscosity = 0,
