@@ -84,7 +84,9 @@ local p_inv = table.concat({
       all_nodes,
       "listring[]",
       "scroll_container_end[]",
-      "scrollbar[6,0;0.5,9;vertical;yes;0]"
+      "scrollbar[6,0;0.5,9;vertical;yes;0]",
+      string.format("image_button[%s,%s;%s,%s;%s;%s;%s]",0,9,1.5,1,"form_selectable.png","craft_size","1"),
+      string.format("image_button[%s,%s;%s,%s;%s;%s;%s]",1.5,9,1.5,1,"form_selectable.png","craft_size","32"),
     })
     -- "listring[]",
     -- sw_form.button({ 0, 0 }, { 1, 1 }, "dirt", "not_dirt", "sw_nodes_dirt.png"),
@@ -99,8 +101,16 @@ function sw_form.defualt_inv(p_ref)
   p_ref:set_inventory_formspec(p_inv)
 end
 
+sw_form.player_stacks = {}
+
+function sw_form.getPlayerStacks(p_ref)
+  local p_name = p_ref:get_player_name()
+  sw_form.player_stacks[p_name] = sw_form.player_stacks[p_name] or {}
+  return sw_form.player_stacks[p_name]
+end
+
 function sw_form.register_listener()
-  core.register_on_player_receive_fields(function(player, formname, fields)
+  core.register_on_player_receive_fields(function(p_ref, formname, fields)
     -- core.log("hmm: "..formname)
     -- core.get_player_window_information(player_name)
     if formname == "" then
@@ -109,14 +119,23 @@ function sw_form.register_listener()
         if key ~= "quit" then
           local split = string.split(key, ":")
           if split[3] and split[3] == "give" then
-            local p_control = player:get_player_control()
+            local p_control = p_ref:get_player_control()
             local itemstack = ItemStack(string.gsub(key, ":give", ""))
             -- core.log("player control: "..dump(p_control.sneak))
-            if p_control.sneak then
-              itemstack:set_count(99)
+            local stacks = sw_form.getPlayerStacks(p_ref)
+            if stacks.craft_size then
+              itemstack:set_count(stacks.craft_size)
             end
-            player:get_inventory():add_item("main", itemstack)
-            core.sound_play(sw_sounds.pickup().dug, { pos = player:get_pos(), to_player = player:get_player_name() })
+            -- if p_control.sneak then
+            --   itemstack:set_count(99)
+            -- end
+            p_ref:get_inventory():add_item("main", itemstack)
+            core.sound_play(sw_sounds.pickup().dug, { pos = p_ref:get_pos(), to_player = p_ref:get_player_name() })
+          end
+          if key == "craft_size" then
+            local stacks = sw_form.getPlayerStacks(p_ref)
+            stacks.craft_size = value
+            core.sound_play(sw_sounds.stone().dug, { pitch = 2.5, pos = p_ref:get_pos(), to_player = p_ref:get_player_name() })
           end
         end
       end
