@@ -28,13 +28,41 @@ sw_form.player_inv_col = 5
 -- sw_form.inv_hotbar_padding = 0.5
 
 local slots_size = { 0.8, 0.8 }
+local inv_padding = 0.3
 
 local i_s_s = 0.1
+local p_slots = ""
+local function create_p_slots()
+  local p_space = 0.9
+  local p_r = 0
+  local p_c = 0
+  local index = 0
+  local c_index = 0
+  local color = "#3a4a51"
+  -- local color = "#3a5a51"
+  for i = 1, sw_form.hotbar_size*(sw_form.player_inv_col), 1 do
+    if c_index == sw_form.player_inv_col-1 then
+      p_c = sw_form.player_inv_col-1
+    end
+    p_slots = p_slots .. string.format("image[%s,%s;%s,%s;form_selectable.png^[multiply:%s;false]",p_r+inv_padding,p_c+inv_padding,slots_size[1],slots_size[2],color)
+    p_r = p_r + p_space
+    index = index + 1
+    if index >= sw_form.hotbar_size then
+      p_c = p_c + p_space
+      p_r = 0
+      index = 0
+      c_index = c_index + 1
+    end
+  end
+end
+create_p_slots()
 local p_container = table.concat({
+  p_slots,
   string.format("style_type[list;spacing=%s;size=%s,%s]", i_s_s, slots_size[1], slots_size[2]),
-  string.format("list[current_player;main;0,0;%s,%s;%s]", sw_form.hotbar_size, sw_form.player_inv_col,
+  "listcolors[#00669900;#66757c]",
+  string.format("list[current_player;main;%s,%s;%s,%s;%s]",inv_padding,inv_padding, sw_form.hotbar_size, sw_form.player_inv_col,
     sw_form.hotbar_size),
-  string.format("list[current_player;main;0,%s;%s,1;0]", sw_form.player_inv_col,
+  string.format("list[current_player;main;%s,%s;%s,1;0]",inv_padding, sw_form.player_inv_col-1+(inv_padding),
     sw_form.hotbar_size),
 })
 
@@ -57,10 +85,11 @@ for item, def in pairs(core.registered_items) do
   if item == "" or def.groups.not_in_creative_inventory ~= nil then
   else
     all_nodes = all_nodes ..
-    string.format("item_image_button[%s,%s;1,1;%s;%s;%s]", col, row, item, item .. ":give", string.split(item, ":")[2])
-    col = col + 1
-    if col > 5 then
-      row = row + 1
+    string.format("item_image_button[%s,%s;1,1;%s;%s;%s]", col+i_s_s, row+i_s_s, item, item .. ":give", "")..
+    string.format("tooltip[%s,%s;1,1;%s]", col+i_s_s, row+i_s_s, string.split(item, ":")[2])
+    col = col+i_s_s + 1
+    if col >= 4 then
+      row = row+i_s_s + 1
       col = 0
     end
   end
@@ -69,25 +98,27 @@ end
 local p_inv = table.concat({
   "formspec_version[10]",
   string.format("size[%s,%s]", p_inv_size[1], p_inv_size[2]),
-  sw_form.container({ 0, 0 }, p_inv_size, "#972453", {
-    sw_form.container({ (sw_form.hotbar_size / 2.5), 0 },
-      { sw_form.hotbar_size + (i_s_s * slots_size[1]), sw_form.player_inv_col + 2 }, "#849353", {
+  sw_form.container({ 0, 0 }, p_inv_size, "#ffffff50", {
+    sw_form.container({ p_inv_size[1]/4, 0 },
+      { (sw_form.hotbar_size-(i_s_s*(sw_form.hotbar_size-1)))+inv_padding , sw_form.player_inv_col + 1 }, "#272f33", {
         p_container,
         -- "listring[current_player;main]",
       }),
     -- sw_form.container({ sw_form.hotbar_size + (i_s_s * slots_size[1]) + (sw_form.hotbar_size / 2), 0 }, { 6, 8 },
     -- "#242453", {
-    sw_form.container({ 15, 0 }, { 6, 9 }, "#658345", {
+    sw_form.container({ 16+4, 0 }, { 4+(i_s_s*5), 9 }, "#272f33", {
       "scroll_container[0,0;6,9;yes;vertical;1;0.2]",
       string.format("style_type[image_button;border=false;bgimg=%s;bgimg_hovered=%s;font_size=10]",
         "(form_selectable.png^[multiply:#3a4a51)", "(form_selectable.png^[multiply:#9a4a51)"),
       all_nodes,
       "listring[]",
       "scroll_container_end[]",
-      "scrollbar[6,0;0.5,9;vertical;yes;0]",
+      "scrollbar["..4+(i_s_s*5)..",0;0.5,9;vertical;yes;0]",
       string.format("image_button[%s,%s;%s,%s;%s;%s;%s]",0,9,1.5,1,"form_selectable.png","craft_size","1"),
+      string.format("tooltip[%s,%s;%s,%s;%s]", 0, 9,1.5,1, "craft size 1"),
       string.format("image_button[%s,%s;%s,%s;%s;%s;%s]",1.5,9,1.5,1,"form_selectable.png","craft_size","32"),
-    })
+      string.format("tooltip[%s,%s;%s,%s;%s]", 1.5, 9,1.5,1, "craft size 32"),
+    }),
     -- "listring[]",
     -- sw_form.button({ 0, 0 }, { 1, 1 }, "dirt", "not_dirt", "sw_nodes_dirt.png"),
     -- sw_form.button({ 0, 1 }, { 1, 1 }, "dirt", "not_dirt", "sw_nodes_cobblestone.png"),

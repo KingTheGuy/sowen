@@ -16,6 +16,8 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
 
 # BACKLOG:
 
+- [ ] #BUG stackoverflow issue with dirt (it wants to tell grass to update)
+
 - [ ] have panel placement be more like placement_preview mod
 
 - [ ] scaffolding
@@ -76,8 +78,6 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
 
 # DOING:
 
-- [ ] #BUG stackoverflow issue with dirt (it wants to tell grass to update)
-
 - [ ] form stuff
   - [ ] form helpers
   - [ ] inventory
@@ -86,8 +86,6 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
   - look at `not_in_creative_inventory`
   - categories -> each category will have its own "workbench"
   - in creative mode, show small menu that lets player select "workbench"
-
-- [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
 
 - [ ] door
   - [ ] mesh model, animated open/closed
@@ -146,6 +144,7 @@ check local file: [ideas](~/Documents/sowen_files/sowen.rnote)
 
 ## DONE:
 
+- [x] (fixed?) #BUG crafting, player gets items equal to the amount of players on
 - [x] open brush menu when shift clicking
 - [x] tree schematic
   - [x] leaves
